@@ -3,104 +3,520 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Submit Request – Travyo</title>
+    <title>Request to List Your Property – Travyo</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        :root { --primary: #1F3C88; --secondary: #ff6b35; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f5f7fb; color: #333; }
+
+        :root {
+            --primary:   #1F3C88;
+            --accent:    #ff6b35;
+            --green:     #22c55e;
+            --bg:        #f0f4ff;
+            --card-bg:   #ffffff;
+            --text:      #1a1a2e;
+            --muted:     #6b7280;
+            --border:    #e2e8f0;
+            --shadow:    0 20px 60px rgba(31, 60, 136, 0.12);
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            color: var(--text);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Decorative background blobs */
+        body::before, body::after {
+            content: '';
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        body::before {
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(31,60,136,.09) 0%, transparent 70%);
+            top: -200px; right: -200px;
+        }
+        body::after {
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(255,107,53,.07) 0%, transparent 70%);
+            bottom: -150px; left: -150px;
+        }
+
+        /* ── Header ── */
         header {
-            background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-            padding: 16px 40px; display: flex; justify-content: space-between; align-items: center;
+            background: #fff;
+            box-shadow: 0 1px 0 var(--border);
+            padding: 14px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
-        .logo { font-size: 26px; font-weight: 800; color: var(--primary); text-decoration: none; }
-        .logo span { color: var(--secondary); }
-        .back-link { color: var(--primary); text-decoration: none; font-weight: 600; font-size: 14px; }
-        .container { max-width: 620px; margin: 50px auto; padding: 0 20px 60px; }
-        .page-header { text-align: center; margin-bottom: 32px; }
-        .page-header h1 { font-size: 28px; color: #222; margin-bottom: 8px; }
-        .page-header p { color: #888; }
-        .card { background: #fff; border-radius: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); padding: 36px; }
+        .logo-img {
+            height: 44px;
+            width: auto;
+            object-fit: contain;
+        }
+        .nav-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 14px;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 2px solid var(--border);
+            transition: all .2s;
+        }
+        .nav-back:hover {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+
+        /* ── Page layout ── */
+        .page-wrapper {
+            position: relative;
+            z-index: 1;
+            min-height: calc(100vh - 73px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 20px 64px;
+        }
+
+        .split-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            max-width: 960px;
+            width: 100%;
+            gap: 48px;
+            align-items: center;
+        }
+
+        /* ── Left panel ── */
+        .left-panel { padding-right: 16px; }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: rgba(255,107,53,.1);
+            color: var(--accent);
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+        }
+
+        .left-panel h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 42px;
+            line-height: 1.15;
+            color: var(--text);
+            margin-bottom: 16px;
+        }
+        .left-panel h1 span { color: var(--accent); }
+
+        .left-panel p {
+            font-size: 16px;
+            color: var(--muted);
+            line-height: 1.75;
+            margin-bottom: 32px;
+        }
+
+        .benefit-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .benefit-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 15px;
+            color: var(--text);
+            font-weight: 500;
+        }
+        .benefit-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 16px;
+        }
+        .benefit-icon.blue  { background: rgba(31,60,136,.1);  color: var(--primary); }
+        .benefit-icon.orange{ background: rgba(255,107,53,.1); color: var(--accent); }
+        .benefit-icon.green { background: rgba(34,197,94,.1);  color: var(--green); }
+
+        /* ── Card ── */
+        .form-card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            padding: 44px 40px;
+            position: relative;
+            overflow: hidden;
+        }
+        .form-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+        }
+
+        .card-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+        .card-sub {
+            font-size: 14px;
+            color: var(--muted);
+            margin-bottom: 28px;
+        }
+
+        /* Form elements */
         .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; font-size: 13px; font-weight: 600; color: #444; margin-bottom: 7px; }
-        .form-group input, .form-group textarea, .form-group select {
-            width: 100%; padding: 11px 14px; border: 2px solid #e8e8e8; border-radius: 8px;
-            font-size: 15px; outline: none; transition: border-color 0.2s; font-family: inherit;
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: .4px;
         }
-        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--primary); }
-        .form-group textarea { resize: vertical; min-height: 100px; }
+        .input-wrap { position: relative; }
+        .input-wrap .icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #c4c9d8;
+            font-size: 15px;
+            pointer-events: none;
+            transition: color .2s;
+        }
+        .input-wrap input {
+            width: 100%;
+            padding: 13px 14px 13px 42px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 15px;
+            font-family: 'DM Sans', sans-serif;
+            color: var(--text);
+            background: #fafbff;
+            outline: none;
+            transition: border-color .2s, box-shadow .2s, background .2s;
+        }
+        .input-wrap input:focus {
+            border-color: var(--primary);
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(31,60,136,.08);
+        }
+        .input-wrap input:focus + .icon,
+        .input-wrap:focus-within .icon { color: var(--primary); }
+
+        /* Fix icon z-index so it overlays input */
+        .input-wrap { display: flex; flex-direction: column; }
+        .input-wrap input { order: 1; }
+        .input-wrap .icon { order: 0; z-index: 1; }
+        /* Reset – use absolute positioning correctly */
+        .input-wrap { position: relative; display: block; }
+        .input-wrap .icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
         .btn-submit {
-            width: 100%; padding: 14px; background: var(--secondary); color: #fff;
-            border: none; border-radius: 8px; font-size: 15px; font-weight: 700;
-            cursor: pointer; transition: background 0.2s;
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--primary), #2e57c8);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: transform .15s, box-shadow .15s, opacity .15s;
+            margin-top: 8px;
+            box-shadow: 0 8px 24px rgba(31,60,136,.28);
         }
-        .btn-submit:hover { background: #e55a2b; }
-        .alert { padding: 14px 18px; border-radius: 8px; font-size: 14px; margin-bottom: 20px; display: none; }
-        .alert-success { background: #eafaf1; color: #1e8449; border: 1px solid #c3e6cb; }
-        .alert-danger  { background: #fdf0f0; color: #c0392b; border: 1px solid #f5c6cb; }
+        .btn-submit:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(31,60,136,.35);
+        }
+        .btn-submit:disabled { opacity: .7; cursor: not-allowed; transform: none; }
+
+        /* ── Success state ── */
+        .success-panel {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 20px 0;
+        }
+        .success-check {
+            width: 80px;
+            height: 80px;
+            background: rgba(34,197,94,.12);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 22px;
+            border: 3px solid rgba(34,197,94,.25);
+            animation: pop .4s cubic-bezier(.34,1.56,.64,1);
+        }
+        @keyframes pop { from{transform:scale(.5);opacity:0} to{transform:scale(1);opacity:1} }
+        .success-check i { font-size: 36px; color: var(--green); }
+        .success-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 26px;
+            color: var(--text);
+            margin-bottom: 12px;
+        }
+        .success-msg {
+            font-size: 15px;
+            color: var(--muted);
+            line-height: 1.7;
+            max-width: 340px;
+            margin: 0 auto 28px;
+        }
+        .btn-home {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 28px;
+            background: var(--primary);
+            color: #fff;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 14px;
+            text-decoration: none;
+            transition: background .2s, transform .15s;
+        }
+        .btn-home:hover { background: #162B5E; transform: translateY(-1px); }
+
+        /* ── Error alert ── */
+        .alert-error {
+            display: none;
+            background: #fff5f5;
+            border: 1.5px solid #fca5a5;
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 13.5px;
+            color: #dc2626;
+            margin-bottom: 20px;
+            align-items: center;
+            gap: 8px;
+        }
+        .alert-error.show { display: flex; }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .split-layout {
+                grid-template-columns: 1fr;
+                gap: 32px;
+            }
+            .left-panel { padding-right: 0; text-align: center; }
+            .benefit-item { justify-content: center; }
+            .left-panel h1 { font-size: 32px; }
+            .form-card { padding: 32px 24px; }
+            header { padding: 14px 20px; }
+        }
     </style>
 </head>
 <body>
+
+<!-- Header -->
 <header>
-    <a class="logo" href="{{ url_for('index') }}">Trav<span>yo</span></a>
-    <a class="back-link" href="{{ url_for('index') }}"><i class="fas fa-arrow-left"></i> Back to Home</a>
+    <a href="{{ url_for('index') }}">
+        <img src="{{ url_for('static', filename='images/logo.png') }}"
+             onerror="this.onerror=null; this.src='{{ url_for('static', filename='unnamed.svg') }}';"
+             alt="Travyo" class="logo-img">
+    </a>
+    <a href="{{ url_for('index') }}" class="nav-back">
+        <i class="fas fa-arrow-left"></i> Back to Home
+    </a>
 </header>
 
-<div class="container">
-    <div class="page-header">
-        <h1><i class="fas fa-envelope" style="color:var(--secondary)"></i> Submit a Request</h1>
-        <p>Want to list your property or need assistance? Fill out the form below.</p>
-    </div>
+<div class="page-wrapper">
+    <div class="split-layout">
 
-    <div class="card">
-        <div class="alert alert-success" id="success-msg"></div>
-        <div class="alert alert-danger" id="error-msg"></div>
+        <!-- Left: Info panel -->
+        <div class="left-panel">
+            <div class="eyebrow">
+                <i class="fas fa-home"></i> List Your Property
+            </div>
+            <h1>Let the world<br>discover your <span>space</span></h1>
+            <p>Submit your details below and our team will reach out within 24 hours with a dedicated listing link — completely free.</p>
 
-        <form id="request-form">
-            <div class="form-group">
-                <label for="name">Full Name *</label>
-                <input type="text" id="name" name="name" placeholder="Your name" required>
+            <div class="benefit-list">
+                <div class="benefit-item">
+                    <div class="benefit-icon blue"><i class="fas fa-bolt"></i></div>
+                    Quick & easy — takes less than a minute
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon orange"><i class="fas fa-link"></i></div>
+                    Receive a personalised listing link
+                </div>
+                <div class="benefit-item">
+                    <div class="benefit-icon green"><i class="fas fa-shield-alt"></i></div>
+                    Your details are safe and never shared
+                </div>
             </div>
-            <div class="form-group">
-                <label for="email">Email Address *</label>
-                <input type="email" id="email" name="email" placeholder="you@example.com" required>
+        </div>
+
+        <!-- Right: Form card -->
+        <div class="form-card">
+            <!-- Form view -->
+            <div id="form-view">
+                <p class="card-title">Submit Your Request</p>
+                <p class="card-sub">We'll be in touch within 24 hours.</p>
+
+                <!-- Error alert -->
+                <div class="alert-error" id="error-alert">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span id="error-text">Something went wrong. Please try again.</span>
+                </div>
+
+                <form id="request-form" novalidate>
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <div class="input-wrap">
+                            <input type="text" id="name" name="name"
+                                   placeholder="e.g. Priya Sharma" required autocomplete="name">
+                            <i class="fas fa-user icon"></i>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <div class="input-wrap">
+                            <input type="email" id="email" name="email"
+                                   placeholder="you@example.com" required autocomplete="email">
+                            <i class="fas fa-envelope icon"></i>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <div class="input-wrap">
+                            <input type="tel" id="phone" name="phone"
+                                   placeholder="+91 98765 43210" autocomplete="tel">
+                            <i class="fas fa-phone icon"></i>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-submit" id="submit-btn">
+                        <i class="fas fa-paper-plane"></i>
+                        Send My Request
+                    </button>
+                </form>
+
+                <p style="font-size:12px;color:var(--muted);text-align:center;margin-top:16px;">
+                    <i class="fas fa-lock" style="margin-right:4px;"></i>
+                    Your information is secure and will never be shared.
+                </p>
             </div>
-            <div class="form-group">
-                <label for="phone">Phone Number</label>
-                <input type="tel" id="phone" name="phone" placeholder="+1 (234) 567-890">
+
+            <!-- Success view (shown after submit) -->
+            <div class="success-panel" id="success-view">
+                <div class="success-check">
+                    <i class="fas fa-check"></i>
+                </div>
+                <h2 class="success-title">Request Submitted! 🎉</h2>
+                <p class="success-msg">
+                    Your request has been submitted successfully. We will contact you and send a separate link to list your property.
+                </p>
+                <a href="{{ url_for('index') }}" class="btn-home">
+                    <i class="fas fa-compass"></i> Explore Properties
+                </a>
             </div>
-            <button type="submit" class="btn-submit" id="submit-btn">
-                <i class="fas fa-paper-plane"></i> Submit Request
-            </button>
-        </form>
+        </div>
+
     </div>
 </div>
 
 <script>
 document.getElementById('request-form').addEventListener('submit', async function(e) {
     e.preventDefault();
-    const btn = document.getElementById('submit-btn');
-    btn.disabled = true; btn.textContent = 'Submitting…';
 
-    const formData = new FormData(this);
-    try {
-        const resp = await fetch('{{ url_for("request_property") }}', { method: 'POST', body: formData });
-        const data = await resp.json();
-        if (data.status === 'success') {
-            document.getElementById('success-msg').textContent = data.message;
-            document.getElementById('success-msg').style.display = 'block';
-            document.getElementById('error-msg').style.display = 'none';
-            this.reset();
-        } else {
-            document.getElementById('error-msg').textContent = data.message;
-            document.getElementById('error-msg').style.display = 'block';
-        }
-    } catch(err) {
-        document.getElementById('error-msg').textContent = 'Something went wrong. Please try again.';
-        document.getElementById('error-msg').style.display = 'block';
+    const btn       = document.getElementById('submit-btn');
+    const errAlert  = document.getElementById('error-alert');
+    const errText   = document.getElementById('error-text');
+
+    // Basic client-side validation
+    const name  = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    if (!name || !email) {
+        errText.textContent = 'Full name and email are required.';
+        errAlert.classList.add('show');
+        return;
     }
-    btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Request';
+    errAlert.classList.remove('show');
+
+    // Loading state
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending…';
+
+    try {
+        const formData = new FormData(this);
+        const resp = await fetch('{{ url_for("request_property") }}', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await resp.json();
+
+        if (data.status === 'success') {
+            // Show success panel with animation
+            document.getElementById('form-view').style.display = 'none';
+            const sv = document.getElementById('success-view');
+            sv.style.display = 'flex';
+            // Trigger reflow for animation
+            void sv.offsetWidth;
+        } else {
+            errText.textContent = data.message || 'Submission failed. Please try again.';
+            errAlert.classList.add('show');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send My Request';
+        }
+    } catch (err) {
+        errText.textContent = 'Network error. Please check your connection and try again.';
+        errAlert.classList.add('show');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Send My Request';
+    }
 });
 </script>
+
 </body>
 </html>

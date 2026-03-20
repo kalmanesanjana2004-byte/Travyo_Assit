@@ -38,6 +38,7 @@ UPLOAD_FOLDER = os.path.join(BASE_DIR, "static", "uploads")
 ALLOWED_EXT   = {"png", "jpg", "jpeg", "gif", "webp"}
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(os.path.join(BASE_DIR, "static", "images"), exist_ok=True)
 app.config["UPLOAD_FOLDER"]         = UPLOAD_FOLDER
 app.config["MAX_CONTENT_LENGTH"]    = 16 * 1024 * 1024   # 16 MB
 
@@ -842,6 +843,17 @@ def admin_dashboard():
         enrich_dt(notifs, ["created_at"])
         unread = get_unread_count(ar["id"])
 
+    # Chart data: requests grouped by date (last 30 days)
+    chart_raw = query_db("""
+        SELECT DATE(created_at) as day, COUNT(*) as cnt
+        FROM requests
+        WHERE created_at >= DATE('now', '-30 days')
+        GROUP BY day
+        ORDER BY day ASC
+    """)
+    chart_labels = [r["day"] for r in chart_raw]
+    chart_values = [r["cnt"] for r in chart_raw]
+
     return render_template(
         "admindashboard.html",
         total_users=total_users,
@@ -854,11 +866,12 @@ def admin_dashboard():
         recent_activities=activities,
         notifications=notifs,
         unread_notifications_count=unread,
+        chart_labels=chart_labels,
+        chart_values=chart_values,
     )
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Admin – property CRUD
+
 # ─────────────────────────────────────────────────────────────────────────────
 @app.route("/admin/property/add", methods=["POST"])
 @admin_required
