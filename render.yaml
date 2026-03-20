@@ -7,6 +7,10 @@ services:
     envVars:
       - key: SECRET_KEY
         generateValue: true
+      - key: ADMIN_EMAIL
+        value: admin@travyo.com        # Change this in Render dashboard
+      - key: ADMIN_PASSWORD
+        sync: false                    # Set securely in Render → Environment (never committed)
       - key: PYTHON_VERSION
         value: 3.11.0
     disk:

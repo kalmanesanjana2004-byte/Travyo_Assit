@@ -575,7 +575,7 @@
                                         </div>
                                         <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
                                             {% if not n.is_read %}
-                                            <form method="POST" action="{{ url_for('mark_notification_read', notification_id=n.id) }}" onclick="event.stopPropagation();">
+                                            <form method="POST" action="{{ url_for('mark_notification_read', nid=n.id) }}" onclick="event.stopPropagation();">
                                                 <button type="submit" class="action-btn" style="padding:6px 8px; font-size:12px;">Mark read</button>
                                             </form>
                                             {% endif %}

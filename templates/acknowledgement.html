@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Confirmed – Travyo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        :root{--primary:#1F3C88;--secondary:#ff6b35;--green:#28a745}
+        body{font-family:'Segoe UI',Tahoma,sans-serif;background:#f5f7fb;color:#333}
+        header{background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.08);padding:16px 40px;display:flex;justify-content:space-between;align-items:center}
+        .logo{font-size:26px;font-weight:800;color:var(--primary);text-decoration:none}.logo span{color:var(--secondary)}
+        .nav a{color:#555;text-decoration:none;font-weight:500;margin-left:20px;font-size:14px}
+
+        .container{max-width:780px;margin:40px auto;padding:0 20px 80px}
+
+        /* Success hero */
+        .success-hero{text-align:center;padding:40px 20px 32px;background:#fff;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,.06);margin-bottom:28px;position:relative;overflow:hidden}
+        .success-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--green),#66bb6a)}
+        .checkmark{width:80px;height:80px;background:rgba(40,167,69,.1);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:3px solid rgba(40,167,69,.2)}
+        .checkmark i{font-size:38px;color:var(--green)}
+        .success-hero h1{font-size:28px;color:#1a1a1a;margin-bottom:8px}
+        .success-hero p{color:#888;font-size:15px;max-width:480px;margin:0 auto 20px}
+        .booking-id{display:inline-flex;align-items:center;gap:8px;background:#f0f4ff;border:1px solid #d0dcff;border-radius:8px;padding:8px 18px;font-size:15px;font-weight:700;color:var(--primary)}
+        .booking-id small{font-weight:400;color:#888}
+
+        /* Action buttons */
+        .actions{display:flex;gap:12px;justify-content:center;margin-top:24px;flex-wrap:wrap}
+        .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:8px;font-size:14px;font-weight:700;text-decoration:none;cursor:pointer;border:none;transition:all .2s}
+        .btn-pdf{background:var(--primary);color:#fff}.btn-pdf:hover{background:#162B5E;transform:translateY(-1px)}
+        .btn-dash{background:#f5f5f5;color:#333;border:2px solid #e0e0e0}.btn-dash:hover{background:#eee}
+        .btn-home{background:var(--secondary);color:#fff}.btn-home:hover{background:#e55a2b;transform:translateY(-1px)}
+
+        /* Detail card */
+        .detail-card{background:#fff;border-radius:14px;box-shadow:0 4px 20px rgba(0,0,0,.06);overflow:hidden;margin-bottom:20px}
+        .detail-card .card-header{background:var(--primary);color:#fff;padding:18px 26px;display:flex;align-items:center;gap:10px}
+        .detail-card .card-header h3{font-size:16px;font-weight:700}
+        .detail-card .card-body{padding:24px 26px}
+        .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+        @media(max-width:600px){.info-grid{grid-template-columns:1fr}}
+        .info-item{}
+        .info-item .lbl{font-size:11px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px}
+        .info-item .val{font-size:15px;color:#222;font-weight:600}
+        .prop-hero{width:100%;height:180px;object-fit:cover;border-radius:10px;margin-bottom:16px}
+
+        /* Payment status */
+        .pay-status{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:20px;font-size:13px;font-weight:700}
+        .pay-status.paid{background:rgba(40,167,69,.1);color:var(--green)}
+        .pay-status.pending{background:rgba(255,193,7,.1);color:#856404}
+
+        /* Confetti (CSS only) */
+        @keyframes fall{from{transform:translateY(-20px) rotate(0);opacity:1}to{transform:translateY(110vh) rotate(720deg);opacity:0}}
+        .confetti-wrap{position:fixed;top:0;left:0;width:100%;pointer-events:none;z-index:9999}
+        .confetti-piece{position:absolute;width:10px;height:10px;border-radius:2px;animation:fall linear forwards}
+    </style>
+</head>
+<body>
+<div class="confetti-wrap" id="confetti"></div>
+
+<header>
+    <a class="logo" href="{{ url_for('index') }}">Trav<span>yo</span></a>
+    <div class="nav">
+        <a href="{{ url_for('dashboard') }}">My Bookings</a>
+        <a href="{{ url_for('index') }}">Explore</a>
+    </div>
+</header>
+
+<div class="container">
+    <!-- Success Banner -->
+    <div class="success-hero">
+        <div class="checkmark"><i class="fas fa-check"></i></div>
+        <h1>Booking Confirmed! 🎉</h1>
+        <p>Your payment was processed successfully and your booking is confirmed. We look forward to hosting you!</p>
+        <div class="booking-id">
+            <small>Booking ID</small>
+            #{{ booking.id }}
+        </div>
+
+        <div class="actions">
+            <a href="{{ url_for('download_pdf', booking_id=booking.id) }}"
+               class="btn btn-pdf" target="_blank">
+                <i class="fas fa-file-pdf"></i> Download PDF Receipt
+            </a>
+            <a href="{{ url_for('dashboard') }}" class="btn btn-dash">
+                <i class="fas fa-tachometer-alt"></i> My Dashboard
+            </a>
+            <a href="{{ url_for('index') }}" class="btn btn-home">
+                <i class="fas fa-compass"></i> Explore More
+            </a>
+        </div>
+    </div>
+
+    <!-- Property Details -->
+    <div class="detail-card">
+        <div class="card-header"><i class="fas fa-building"></i><h3>Property Details</h3></div>
+        <div class="card-body">
+            {% if booking.image_url %}
+            <img src="{{ booking.image_url }}" alt="{{ booking.property_name }}" class="prop-hero">
+            {% endif %}
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="lbl">Property</div>
+                    <div class="val">{{ booking.property_name }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="lbl">Location</div>
+                    <div class="val">{{ booking.location }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="lbl">Category</div>
+                    <div class="val">{{ booking.category | title }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="lbl">Status</div>
+                    <div class="val" style="color:var(--green)">✓ {{ booking.status | replace('_',' ') | title }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="lbl">Check-In</div>
+                    <div class="val">{{ booking.check_in }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="lbl">Check-Out</div>
+                    <div class="val">{{ booking.check_out }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Guest Details -->
+    <div class="detail-card">
+        <div class="card-header"><i class="fas fa-user"></i><h3>Guest Information</h3></div>
+        <div class="card-body">
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="lbl">Name</div>
+                    <div class="val">{{ booking.user_name }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="lbl">Email</div>
+                    <div class="val">{{ booking.user_email }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="lbl">Guests</div>
+                    <div class="val">{{ booking.guests }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="lbl">Rooms</div>
+                    <div class="val">{{ booking.rooms }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Details -->
+    <div class="detail-card">
+        <div class="card-header"><i class="fas fa-credit-card"></i><h3>Payment Summary</h3></div>
+        <div class="card-body">
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="lbl">Total Amount</div>
+                    <div class="val" style="font-size:22px;color:var(--secondary)">${{ "%.2f"|format(booking.total_price) }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="lbl">Payment Status</div>
+                    <div class="val">
+                        <span class="pay-status {{ booking.payment_status or 'pending' }}">
+                            <i class="fas fa-{{ 'check-circle' if booking.payment_status == 'paid' else 'clock' }}"></i>
+                            {{ (booking.payment_status or 'pending') | title }}
+                        </span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="lbl">Payment Method</div>
+                    <div class="val">{{ (booking.payment_method or '—') | replace('_',' ') | title }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="lbl">Transaction ID</div>
+                    <div class="val" style="font-family:monospace;font-size:13px">{{ booking.payment_id or '—' }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom CTA -->
+    <div style="text-align:center;margin-top:30px">
+        <p style="color:#888;font-size:14px;margin-bottom:16px">A copy of this receipt has been saved to your account.</p>
+        <a href="{{ url_for('download_pdf', booking_id=booking.id) }}"
+           class="btn btn-pdf" style="font-size:15px;padding:14px 30px" target="_blank">
+            <i class="fas fa-file-pdf"></i> Download PDF Receipt
+        </a>
+    </div>
+</div>
+
+<script>
+// Simple confetti burst
+const wrap = document.getElementById('confetti');
+const colors = ['#1F3C88','#ff6b35','#28a745','#ffc107','#e91e63','#00bcd4'];
+for (let i = 0; i < 60; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    const size = 8 + Math.random() * 10;
+    el.style.cssText = `
+        width:${size}px;height:${size}px;
+        left:${Math.random()*100}%;
+        top:-20px;
+        background:${colors[Math.floor(Math.random()*colors.length)]};
+        border-radius:${Math.random() > .5 ? '50%' : '2px'};
+        animation-duration:${2+Math.random()*3}s;
+        animation-delay:${Math.random()*1.5}s;
+    `;
+    wrap.appendChild(el);
+}
+// Remove confetti after 5 s
+setTimeout(() => wrap.remove(), 6000);
+</script>
+</body>
+</html>

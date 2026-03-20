@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Payment – Travyo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        :root{--primary:#1F3C88;--secondary:#ff6b35;--green:#28a745}
+        body{font-family:'Segoe UI',Tahoma,sans-serif;background:#f5f7fb;color:#333}
+        header{background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.08);padding:16px 40px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100}
+        .logo{font-size:26px;font-weight:800;color:var(--primary);text-decoration:none}.logo span{color:var(--secondary)}
+        .secure-badge{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--green);font-weight:600}
+        .container{max-width:960px;margin:36px auto;padding:0 20px 60px;display:grid;grid-template-columns:1fr 360px;gap:28px}
+        @media(max-width:768px){.container{grid-template-columns:1fr}}
+        /* Order summary */
+        .summary-card{background:#fff;border-radius:14px;box-shadow:0 4px 20px rgba(0,0,0,.06);overflow:hidden;height:fit-content}
+        .summary-img{width:100%;height:180px;object-fit:cover}
+        .summary-body{padding:22px}
+        .summary-body h3{font-size:17px;color:#222;margin-bottom:4px}
+        .summary-body .loc{font-size:13px;color:#888;margin-bottom:16px}
+        .summary-row{display:flex;justify-content:space-between;font-size:14px;color:#555;margin-bottom:8px}
+        .summary-total{display:flex;justify-content:space-between;font-size:18px;font-weight:800;color:#1a1a1a;padding-top:14px;border-top:2px solid #eee;margin-top:10px}
+        .summary-total span:last-child{color:var(--secondary)}
+        /* Payment form */
+        .payment-card{background:#fff;border-radius:14px;box-shadow:0 4px 20px rgba(0,0,0,.06);padding:30px}
+        .payment-card h2{font-size:22px;color:#222;margin-bottom:6px}
+        .payment-card .sub{font-size:13px;color:#888;margin-bottom:24px}
+        .alert{padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:18px;background:#fdf0f0;color:#c0392b;border:1px solid #f5c6cb;display:flex;align-items:center;gap:8px}
+        /* Method tabs */
+        .method-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px}
+        .method-tab{border:2px solid #e8e8e8;border-radius:10px;padding:12px 8px;text-align:center;cursor:pointer;transition:all .2s;background:#fff}
+        .method-tab:hover{border-color:var(--primary)}
+        .method-tab.active{border-color:var(--primary);background:#f0f4ff}
+        .method-tab i{display:block;font-size:22px;margin-bottom:6px;color:#888}
+        .method-tab.active i{color:var(--primary)}
+        .method-tab span{font-size:12px;font-weight:600;color:#555}
+        .method-tab.active span{color:var(--primary)}
+        .method-tab input[type=radio]{display:none}
+        /* Panels */
+        .pay-panel{display:none}
+        .pay-panel.active{display:block}
+        .form-group{margin-bottom:18px}
+        .form-group label{display:block;font-size:12px;font-weight:700;color:#555;margin-bottom:7px;text-transform:uppercase;letter-spacing:.5px}
+        .form-group input{width:100%;padding:11px 14px;border:2px solid #e8e8e8;border-radius:8px;font-size:15px;outline:none;transition:border-color .2s}
+        .form-group input:focus{border-color:var(--primary)}
+        .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+        .upi-hint{font-size:12px;color:#888;margin-top:6px}
+        .btn-pay{width:100%;padding:15px;background:var(--green);color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;transition:background .2s,transform .1s;display:flex;align-items:center;justify-content:center;gap:10px;margin-top:8px}
+        .btn-pay:hover{background:#218838;transform:translateY(-1px)}
+        .ssl-note{display:flex;align-items:center;gap:6px;justify-content:center;margin-top:14px;font-size:12px;color:#aaa}
+        .ssl-note i{color:var(--green)}
+        .card-icons{display:flex;gap:8px;margin-bottom:14px}
+        .card-icons img{height:26px;border-radius:3px;border:1px solid #eee;padding:2px 4px}
+        .sim-badge{background:#fff8e6;border:1px solid #ffe082;border-radius:8px;padding:10px 14px;font-size:12px;color:#856404;margin-bottom:20px;display:flex;align-items:center;gap:8px}
+    </style>
+</head>
+<body>
+<header>
+    <a class="logo" href="{{ url_for('index') }}">Trav<span>yo</span></a>
+    <div class="secure-badge"><i class="fas fa-lock"></i> Secure Checkout</div>
+</header>
+
+<div class="container">
+    <!-- Payment form  (left) -->
+    <div class="payment-card">
+        <h2>Complete Payment</h2>
+        <p class="sub">Choose your preferred payment method</p>
+
+        <div class="sim-badge">
+            <i class="fas fa-flask"></i>
+            <span><strong>Demo Mode:</strong> Payment is simulated. No real charges will be made.</span>
+        </div>
+
+        {% if error %}
+        <div class="alert"><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
+        {% endif %}
+
+        <form method="POST" action="{{ url_for('payment_page', booking_id=booking.id) }}" id="pay-form">
+            <!-- Method selector -->
+            <div class="method-tabs">
+                <label class="method-tab active" id="tab-upi">
+                    <input type="radio" name="payment_method" value="upi" checked>
+                    <i class="fas fa-mobile-alt"></i>
+                    <span>UPI</span>
+                </label>
+                <label class="method-tab" id="tab-credit_card">
+                    <input type="radio" name="payment_method" value="credit_card">
+                    <i class="fas fa-credit-card"></i>
+                    <span>Credit Card</span>
+                </label>
+                <label class="method-tab" id="tab-debit_card">
+                    <input type="radio" name="payment_method" value="debit_card">
+                    <i class="fas fa-wallet"></i>
+                    <span>Debit Card</span>
+                </label>
+            </div>
+
+            <!-- UPI Panel -->
+            <div class="pay-panel active" id="panel-upi">
+                <div class="form-group">
+                    <label>UPI ID</label>
+                    <input type="text" name="upi_id" placeholder="yourname@upi" autocomplete="off">
+                    <p class="upi-hint">Examples: name@okaxis, name@paytm, 9876543210@upi</p>
+                </div>
+            </div>
+
+            <!-- Credit Card Panel -->
+            <div class="pay-panel" id="panel-credit_card">
+                <div class="card-icons">
+                    <img src="https://raw.githubusercontent.com/rzelazo/PaymentIcons/main/visa.png" alt="Visa" onerror="this.style.display='none'">
+                    <img src="https://raw.githubusercontent.com/rzelazo/PaymentIcons/main/mastercard.png" alt="MC" onerror="this.style.display='none'">
+                </div>
+                <div class="form-group">
+                    <label>Card Number</label>
+                    <input type="text" name="card_number" placeholder="1234 5678 9012 3456"
+                           maxlength="19" id="cc-num" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label>Cardholder Name</label>
+                    <input type="text" name="card_name" placeholder="Name on card">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Expiry (MM/YY)</label>
+                        <input type="text" name="expiry" placeholder="MM/YY" maxlength="5" id="expiry">
+                    </div>
+                    <div class="form-group">
+                        <label>CVV</label>
+                        <input type="password" name="cvv" placeholder="•••" maxlength="4">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Debit Card Panel (reuses credit card fields with separate panel) -->
+            <div class="pay-panel" id="panel-debit_card">
+                <div class="form-group">
+                    <label>Card Number</label>
+                    <input type="text" name="card_number" placeholder="1234 5678 9012 3456"
+                           maxlength="19" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label>Cardholder Name</label>
+                    <input type="text" name="card_name" placeholder="Name on card">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Expiry (MM/YY)</label>
+                        <input type="text" name="expiry" placeholder="MM/YY" maxlength="5">
+                    </div>
+                    <div class="form-group">
+                        <label>CVV</label>
+                        <input type="password" name="cvv" placeholder="•••" maxlength="4">
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-pay" id="pay-btn">
+                <i class="fas fa-lock"></i>
+                Pay ${{ "%.2f"|format(booking.total_price) }}
+            </button>
+        </form>
+
+        <div class="ssl-note">
+            <i class="fas fa-shield-alt"></i> 256-bit SSL encrypted &amp; secure
+        </div>
+    </div>
+
+    <!-- Order summary (right) -->
+    <div>
+        <div class="summary-card">
+            <img src="{{ booking.image_url or 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=600&q=80' }}"
+                 alt="{{ booking.property_name }}" class="summary-img">
+            <div class="summary-body">
+                <h3>{{ booking.property_name }}</h3>
+                <p class="loc"><i class="fas fa-map-marker-alt"></i> {{ booking.location }}</p>
+                <div class="summary-row"><span>Check-In</span><span>{{ booking.check_in }}</span></div>
+                <div class="summary-row"><span>Check-Out</span><span>{{ booking.check_out }}</span></div>
+                <div class="summary-row"><span>Guests</span><span>{{ booking.guests }}</span></div>
+                <div class="summary-row"><span>Rooms</span><span>{{ booking.rooms }}</span></div>
+                <div class="summary-total">
+                    <span>Total</span>
+                    <span>${{ "%.2f"|format(booking.total_price) }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Tab switching
+const tabs   = document.querySelectorAll('.method-tab');
+const panels = document.querySelectorAll('.pay-panel');
+const radios = document.querySelectorAll('input[name=payment_method]');
+
+tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+        const method = tab.querySelector('input').value;
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        panels.forEach(p => p.classList.remove('active'));
+        document.getElementById('panel-' + method).classList.add('active');
+    });
+});
+
+// Card number formatting
+const ccNum = document.getElementById('cc-num');
+if (ccNum) {
+    ccNum.addEventListener('input', () => {
+        let v = ccNum.value.replace(/\D/g, '').slice(0, 16);
+        ccNum.value = v.replace(/(.{4})/g, '$1 ').trim();
+    });
+}
+
+// Expiry formatting
+const expiry = document.getElementById('expiry');
+if (expiry) {
+    expiry.addEventListener('input', () => {
+        let v = expiry.value.replace(/\D/g, '').slice(0, 4);
+        if (v.length >= 2) v = v.slice(0,2) + '/' + v.slice(2);
+        expiry.value = v;
+    });
+}
+
+// Loading state on submit
+document.getElementById('pay-form').addEventListener('submit', () => {
+    const btn = document.getElementById('pay-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing…';
+});
+</script>
+</body>
+</html>
