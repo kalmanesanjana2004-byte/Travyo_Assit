@@ -1,0 +1,2642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travyo - Smart Travel Adviser and Budget Planner</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #1F3C88;
+            color: white;
+            border-radius: 4px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn:hover {
+            background-color: #162B5E;
+            transform: translateY(-2px);
+        }
+        
+        /* Header Styles */
+        header {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 30px 0;
+        }
+        
+        .logo {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1F3C88;
+        }
+        
+        .logo span {
+            color: #ff6b35;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 30px;
+        }
+        
+        nav ul li a {
+            font-size: 18px;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        
+        nav ul li a:hover {
+            color: #1F3C88;
+        }
+        
+        .auth-buttons a {
+            margin-left: 15px;
+        }
+        
+        .auth-buttons .login {
+            color: #1F3C88;
+            font-size: 18px;
+        }
+        
+        .auth-buttons .signup {
+            background-color: #1F3C88;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-size: 18px;
+        }
+        
+        /* Hero Section */
+        .hero {
+            position: relative;
+            height: 650px;
+            display: flex;
+            align-items: center;
+            color: white;
+            text-align: center;
+            overflow: hidden;
+        }
+        
+        .hero-slider {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        .hero-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+        
+        .hero-slide.active {
+            opacity: 1;
+        }
+        
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5));
+            z-index: 2;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 3;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .hero h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        .hero p {
+            font-size: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .search-box {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            display: flex;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .search-box input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px 0 0 4px;
+            font-size: 16px;
+        }
+        
+        .search-box button {
+            padding: 12px 24px;
+            background-color: #1F3C88;
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        /* Category Section */
+        .category {
+            padding: 80px 0;
+            background-color: #f9f9f9;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        
+        .section-title h2 {
+            font-size: 36px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .section-title p {
+            color: #666;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+        
+        @media (min-width: 1200px) {
+            .category-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        .feature-card {
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+            position: relative;
+            height: 300px;
+            background-size: cover;
+            background-position: center;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.3));
+            z-index: 1;
+        }
+        
+        .feature-card > * {
+            position: relative;
+            z-index: 2;
+            color: white;
+        }
+        
+        .feature-card {
+            cursor: pointer;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .feature-icon {
+            font-size: 40px;
+            color: white;
+            margin-bottom: 20px;
+        }
+        
+        .feature-card h3 {
+            font-size: 28px;
+            margin-bottom: 15px;
+            color: white;
+            font-weight: 700;
+        }
+        
+        .feature-card p {
+            color: rgba(255, 255, 255, 0.95);
+        }
+        
+        /* Destinations Section */
+        .destinations {
+            padding: 80px 0;
+        }
+        
+        .destinations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+        }
+        
+        .destination-card {
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            height: 300px;
+        }
+        
+        .destination-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        
+        .destination-card:hover img {
+            transform: scale(1.1);
+        }
+        
+        .destination-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+            padding: 20px;
+            color: white;
+        }
+        
+        .destination-info h3 {
+            margin-bottom: 5px;
+        }
+        
+        .destination-info p {
+            font-size: 14px;
+        }
+        
+        .price {
+            font-weight: 700;
+            color: #ff6b35;
+        }
+        
+        /* CTA Section */
+        .cta {
+            background-color: #1F3C88;
+            color: white;
+            padding: 80px 0;
+            text-align: center;
+        }
+        
+        .cta h2 {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+        
+        .cta p {
+            max-width: 700px;
+            margin: 0 auto 30px;
+            font-size: 18px;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: #222;
+            color: #ddd;
+            padding: 40px 0 20px;
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #444;
+        }
+        
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #333;
+            padding: 8px;
+            min-width: 40px;
+            min-height: 40px;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .mobile-menu-toggle:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .mobile-menu-toggle:active {
+            background-color: #e0e0e0;
+        }
+        
+        /* Touch-friendly improvements */
+        @media (hover: none) and (pointer: coarse) {
+            .btn, .action-btn, .property-button, .booking-button {
+                min-height: 44px;
+                min-width: 44px;
+            }
+            
+            nav ul li a {
+                padding: 12px;
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+            }
+        }
+        
+        /* Responsive */
+        @media (max-width: 992px) {
+            .header-container {
+                flex-wrap: wrap;
+            }
+            
+            nav {
+                order: 3;
+                width: 100%;
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.3s ease;
+            }
+            
+            nav.active {
+                max-height: 500px;
+            }
+            
+            nav ul {
+                flex-direction: column;
+                width: 100%;
+                margin-top: 10px;
+                padding: 10px 0;
+            }
+            
+            nav ul li {
+                margin: 5px 0;
+                width: 100%;
+            }
+            
+            nav ul li a {
+                display: block;
+                padding: 10px;
+            }
+            
+            .mobile-menu-toggle {
+                display: flex;
+            }
+            
+            .auth-buttons {
+                order: 2;
+                margin-left: auto;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header-container {
+                padding: 15px 0;
+            }
+            
+            .logo {
+                font-size: 24px;
+            }
+            
+            .hero {
+                height: 500px;
+                padding: 20px;
+            }
+            
+            .hero h1 {
+                font-size: 32px;
+                margin-bottom: 15px;
+            }
+            
+            .hero p {
+                font-size: 16px;
+                margin-bottom: 20px;
+            }
+            
+            .search-box {
+                flex-direction: column;
+                padding: 15px;
+            }
+            
+            .search-box input {
+                border-radius: 4px;
+                margin-bottom: 10px;
+                padding: 12px;
+            }
+            
+            .search-box button {
+                border-radius: 4px;
+                width: 100%;
+                padding: 12px;
+            }
+            
+            .category-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .feature-card {
+                height: 250px;
+                padding: 20px;
+            }
+            
+            .feature-card h3 {
+                font-size: 24px;
+            }
+            
+            .properties-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .property-item {
+                height: 300px;
+            }
+            
+            .section-title h2 {
+                font-size: 28px;
+            }
+            
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .hero {
+                height: 400px;
+            }
+            
+            .hero h1 {
+                font-size: 24px;
+            }
+            
+            .hero p {
+                font-size: 14px;
+            }
+            
+            .auth-buttons {
+                flex-direction: column;
+                width: 100%;
+                gap: 10px;
+            }
+            
+            .auth-buttons .login,
+            .auth-buttons .signup {
+                width: 100%;
+                text-align: center;
+                padding: 10px;
+            }
+            
+            .category {
+                padding: 40px 0;
+            }
+            
+            .properties-section {
+                padding: 40px 0;
+            }
+            
+            .section-title {
+                margin-bottom: 30px;
+            }
+            
+            .section-title h2 {
+                font-size: 24px;
+            }
+            
+            .section-title p {
+                font-size: 14px;
+            }
+        }
+    </style>
+     <style>
+        /* (Keep all your existing styles, just add these new ones at the end) */
+        
+        /* New Search Filters */
+        .search-filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+        }
+        
+        .filter-option {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+        
+        .filter-option input {
+            cursor: pointer;
+        }
+        
+        /* Flight Search Form */
+        .flight-search {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        .flight-search form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .flight-search .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .flight-search label {
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .flight-search input, 
+        .flight-search select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .flight-search button {
+            grid-column: 1 / -1;
+            padding: 12px;
+            background-color: #1F3C88;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        /* Popular Searches */
+        .popular-searches {
+            margin-top: 30px;
+        }
+        
+        .popular-searches h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .popular-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .popular-item {
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        
+        .popular-item:hover {
+            background-color: #f9f9f9;
+            transform: translateY(-3px);
+        }
+        
+        /* Login/Signup Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        /* Properties Modal */
+        .properties-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .properties-modal-content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 1200px;
+            max-height: 90vh;
+            position: relative;
+            overflow-y: auto;
+        }
+        
+        .properties-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .properties-modal-header h2 {
+            font-size: 32px;
+            color: #1F3C88;
+            margin: 0;
+        }
+        
+        .close-properties-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 32px;
+            cursor: pointer;
+            color: #666;
+            background: none;
+            border: none;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
+        .close-properties-modal:hover {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        
+        .properties-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        
+        .property-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            background-color: white;
+        }
+        
+        .property-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .property-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        
+        .property-info {
+            padding: 20px;
+        }
+        
+        .property-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .property-location {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .property-price {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1F3C88;
+            margin-bottom: 10px;
+        }
+        
+        .property-price span {
+            font-size: 14px;
+            font-weight: normal;
+            color: #666;
+        }
+        
+        .property-rating {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .property-rating .stars {
+            color: #ffc107;
+        }
+        
+        .property-rating .rating-text {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .property-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .property-feature {
+            background-color: #f0f0f0;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .property-button {
+            width: 100%;
+            padding: 12px;
+            background-color: #1F3C88;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .property-button:hover {
+            background-color: #162B5E;
+        }
+        
+        /* Properties Section Styles */
+        .properties-section {
+            padding: 80px 0;
+            background-color: #f9f9f9;
+        }
+        
+        .properties-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        
+        .property-item {
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            height: 350px;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+        
+        .property-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .property-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.3));
+            z-index: 1;
+        }
+        
+        .property-item-content {
+            position: relative;
+            z-index: 2;
+            padding: 25px;
+            color: white;
+        }
+        
+        .property-item-name {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: white;
+        }
+        
+        .property-item-location {
+            font-size: 16px;
+            margin-bottom: 12px;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .property-item-price {
+            font-size: 28px;
+            font-weight: 700;
+            color: #ff6b35;
+            margin-bottom: 8px;
+        }
+        
+        .property-item-price span {
+            font-size: 16px;
+            font-weight: normal;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .property-item-rating {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .property-item-rating .stars {
+            color: #ffc107;
+        }
+        
+        .property-item-rating .rating-text {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+        }
+        
+        /* Pagination Styles */
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+        
+        .pagination-button {
+            padding: 10px 20px;
+            background-color: #1F3C88;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .pagination-button:hover:not(:disabled) {
+            background-color: #162B5E;
+        }
+        
+        .pagination-button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        
+        .pagination-pages {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+        
+        .page-number {
+            padding: 8px 15px;
+            background-color: white;
+            color: #333;
+            border: 2px solid #e0e0e0;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .page-number:hover {
+            background-color: #f0f0f0;
+            border-color: #1F3C88;
+        }
+        
+        .page-number.active {
+            background-color: #1F3C88;
+            color: white;
+            border-color: #1F3C88;
+        }
+        
+        .pagination-info {
+            color: #666;
+            font-size: 16px;
+            margin: 0 10px;
+        }
+        
+        /* Post Property Section */
+        .post-property-section {
+            padding: 80px 0;
+            background-color: white;
+        }
+        
+        .post-property-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .post-property-banner {
+            width: 100%;
+            height: 400px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .post-property-banner img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .post-property-content {
+            padding: 20px;
+        }
+        
+        .post-property-content h2 {
+            font-size: 42px;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        
+        .post-property-content p {
+            font-size: 18px;
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+        
+        .post-property-button {
+            padding: 16px 40px;
+            background-color: #1F3C88;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        
+        .post-property-button:hover {
+            background-color: #162B5E;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 170, 108, 0.3);
+        }
+        
+        /* About Section Styles */
+        .about-section {
+            padding: 80px 0;
+            background-color: #f9f9f9;
+        }
+        
+        .about-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            margin-bottom: 60px;
+        }
+        
+        .about-text {
+            background-color: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .about-text h2 {
+            font-size: 36px;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        
+        .about-text p {
+            font-size: 16px;
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+        
+        .contact-info {
+            background-color: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .contact-info h3 {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 25px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .contact-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .contact-icon {
+            font-size: 24px;
+            color: #1F3C88;
+            margin-right: 15px;
+            min-width: 30px;
+        }
+        
+        .contact-details h4 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .contact-details p {
+            font-size: 16px;
+            color: #666;
+            margin: 0;
+        }
+        
+        .contact-details a {
+            color: #1F3C88;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .contact-details a:hover {
+            color: #162B5E;
+            text-decoration: underline;
+        }
+        
+        .about-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        
+        .stat-card {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .stat-number {
+            font-size: 42px;
+            font-weight: 700;
+            color: #1F3C88;
+            margin-bottom: 10px;
+        }
+        
+        .stat-label {
+            font-size: 16px;
+            color: #666;
+        }
+        
+        .auth-form h2 {
+            margin-bottom: 20px;
+            text-align: center;
+            color: #333;
+        }
+        
+        .auth-form .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .auth-form label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        
+        .auth-form input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .auth-form button {
+            width: 100%;
+            padding: 12px;
+            background-color: #1F3C88;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+        
+        .auth-form p {
+            text-align: center;
+            margin-top: 15px;
+        }
+        
+        .auth-form a {
+            color: #1F3C88;
+            font-weight: 600;
+        }
+        /* Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    color: #333;
+    line-height: 1.6;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #1F3C88;
+    color: white;
+    border-radius: 4px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    background-color: #162B5E;
+    transform: translateY(-2px);
+}
+
+/* Header Styles */
+header {
+    background-color: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30px 0;
+}
+
+.logo {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1F3C88;
+    display: flex;
+    align-items: center;
+    height: 60px;
+}
+
+.logo img {
+    max-height: 50px;
+    width: auto;
+}
+
+.logo span {
+    color: #ff6b35;
+}
+
+nav ul {
+    display: flex;
+    list-style: none;
+}
+
+nav ul li {
+    margin-left: 30px;
+}
+
+nav ul li a {
+    font-size: 18px;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+nav ul li a:hover {
+    color: #1F3C88;
+}
+
+.auth-buttons a {
+    margin-left: 15px;
+}
+
+.auth-buttons .login {
+    color: #1F3C88;
+    font-size: 18px;
+}
+
+.auth-buttons .signup {
+    background-color: #1F3C88;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 4px;
+    font-size: 18px;
+}
+
+/* Common Section Styles */
+.section-title {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.section-title h2 {
+    font-size: 36px;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.section-title p {
+    color: #666;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+/* Search Filters */
+.search-filters {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #f5f5f5;
+    border-radius: 8px;
+    flex-wrap: wrap;
+}
+
+.filter-option {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.filter-option:hover {
+    background-color: #e0e0e0;
+}
+
+.filter-option input {
+    cursor: pointer;
+}
+
+/* Forms */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #555;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.form-group select[multiple] {
+    height: 120px;
+}
+
+/* Search Box */
+.search-box {
+    display: flex;
+    max-width: 600px;
+    margin: 0 auto 30px;
+}
+
+.search-box input {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px 0 0 4px;
+    font-size: 16px;
+}
+
+.search-box button {
+    padding: 12px 24px;
+    background-color: #1F3C88;
+    color: white;
+    border: none;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+/* Popular Searches */
+.popular-searches {
+    margin: 30px 0;
+}
+
+.popular-searches h3 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.popular-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.popular-item {
+    padding: 15px;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.popular-item:hover {
+    background-color: #f9f9f9;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.popular-item h4 {
+    color: #1F3C88;
+    margin-bottom: 5px;
+}
+
+/* Destination Cards */
+.destinations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
+}
+
+.destination-card {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    position: relative;
+    height: 300px;
+    cursor: pointer;
+}
+
+.destination-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.destination-card:hover img {
+    transform: scale(1.1);
+}
+
+.destination-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+    padding: 20px;
+    color: white;
+}
+
+.destination-info h3 {
+    margin-bottom: 5px;
+}
+
+.destination-info p {
+    font-size: 14px;
+}
+
+.price {
+    font-weight: 700;
+    color: #ff6b35;
+}
+
+/* Flight Search Form */
+.flight-search {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+.flight-search form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+/* Packing List */
+.packing-form {
+    max-width: 600px;
+    margin: 0 auto 40px;
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.packing-results {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.packing-categories {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.packing-category h4 {
+    margin-bottom: 10px;
+    color: #1F3C88;
+}
+
+.packing-category ul {
+    list-style: none;
+}
+
+.packing-category li {
+    padding: 5px 0;
+    border-bottom: 1px solid #eee;
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 400px;
+    position: relative;
+}
+
+.close-modal {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* Responsive Styles */
+@media (max-width: 992px) {
+    .container {
+        padding: 0 15px;
+    }
+    
+    .post-property-container {
+        grid-template-columns: 1fr;
+        gap: 30px;
+        padding: 0 15px;
+    }
+    
+    .about-content {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+}
+
+@media (max-width: 768px) {
+    .header-container {
+        padding: 15px 0;
+    }
+    
+    .search-box {
+        flex-direction: column;
+        padding: 15px;
+    }
+    
+    .search-box input {
+        border-radius: 4px;
+        margin-bottom: 10px;
+        padding: 12px;
+    }
+    
+    .search-box button {
+        border-radius: 4px;
+        width: 100%;
+        padding: 12px;
+    }
+    
+    .flight-search form {
+        grid-template-columns: 1fr;
+    }
+    
+    .properties-modal-content {
+        padding: 20px;
+        max-height: 95vh;
+        margin: 10px;
+    }
+    
+    .properties-modal-header h2 {
+        font-size: 24px;
+    }
+    
+    .properties-list {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .close-properties-modal {
+        top: 10px;
+        right: 10px;
+        font-size: 28px;
+        width: 35px;
+        height: 35px;
+    }
+    
+    .pagination-container {
+        flex-direction: column;
+        gap: 15px;
+        padding: 0 15px;
+    }
+    
+    .pagination-pages {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .page-number {
+        padding: 6px 12px;
+        font-size: 14px;
+    }
+    
+    .pagination-button {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+    
+    .pagination-info {
+        text-align: center;
+        margin: 0;
+        font-size: 14px;
+    }
+    
+    .post-property-banner {
+        height: 300px;
+    }
+    
+    .post-property-content {
+        padding: 15px;
+    }
+    
+    .post-property-content h2 {
+        font-size: 32px;
+    }
+    
+    .post-property-content p {
+        font-size: 16px;
+    }
+    
+    .post-property-button {
+        width: 100%;
+        padding: 14px 30px;
+        font-size: 16px;
+    }
+    
+    .about-text, .contact-info {
+        padding: 25px;
+    }
+    
+    .about-text h2 {
+        font-size: 28px;
+    }
+    
+    .contact-info h3 {
+        font-size: 24px;
+    }
+    
+    .about-stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+    
+    .stat-card {
+        padding: 20px;
+    }
+    
+    .stat-number {
+        font-size: 36px;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 0 10px;
+    }
+    
+    .post-property-content h2 {
+        font-size: 24px;
+    }
+    
+    .about-text, .contact-info {
+        padding: 20px;
+    }
+    
+    .about-text h2 {
+        font-size: 24px;
+    }
+    
+    .contact-info h3 {
+        font-size: 20px;
+    }
+    
+    .about-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .stat-number {
+        font-size: 32px;
+    }
+    
+    .properties-modal-content {
+        padding: 15px;
+        margin: 5px;
+    }
+    
+    .property-card {
+        margin-bottom: 15px;
+    }
+}
+    </style>
+
+</head>
+<body data-user-logged-in="{% if session.get('user_logged_in') %}true{% else %}false{% endif %}">
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <a href="{{ url_for('index') }}" class="logo" style="display: flex; align-items: center; text-decoration: none;">
+                <img src="{{ url_for('static', filename='unnamed.svg') }}" alt="Travyo Logo" style="height: 50px; width: auto;">
+            </a>
+            <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Toggle menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            <nav id="main-nav">
+                <ul>
+                    <li><a href="{{ url_for('index') }}">Home</a></li>
+                    <li><a href="#category">Category</a></li>
+                    <li><a href="#properties">Properties</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#about">Contact</a></li>
+                    <li><a href="{{ url_for('request_page') }}">Request</a></li>
+                </ul>
+            </nav>
+             <div class="auth-buttons">
+                {% if session.get('user_logged_in') %}
+                    <a href="{{ url_for('dashboard') }}" class="login">Dashboard</a>
+                    <a href="{{ url_for('user_logout') }}" class="signup">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('user_login') }}" class="login">Sign In</a>
+                    <a href="{{ url_for('user_register') }}" class="signup">Sign Up</a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-slider">
+            <div class="hero-slide active" style="background-image: url('https://images.unsplash.com/photo-1506929562872-bb421503ef21?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');"></div>
+            <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');"></div>
+            <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1488646953014-85cb44e25828?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');"></div>
+            <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');"></div>
+            <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1469474968028-56623f02e42e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');"></div>
+        </div>
+        <div class="hero-overlay"></div>
+        <div class="container">
+            <div class="hero-content">
+                <h1>Explore smart. Travel cheap. Plan with ease.</h1>
+                <p>Your intelligent travel planner for budget-friendly adventures</p>
+                <div class="search-box">
+                    <input type="text" placeholder="Where do you want to go?">
+                    <button onclick="redirectToLogin()">Search</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Category Section -->
+    <section id="category" class="category">
+        <div class="container">
+            <div class="section-title">
+                <h2>Category</h2>
+            </div>
+            <div class="category-grid">
+                <div class="feature-card" data-category="resort" style="background-image: url('https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');">
+                    <div class="feature-icon">🏖️</div>
+                    <h3>Resort</h3>
+                    <p>Experience luxury and relaxation at premium beachfront and mountain resorts around the world.</p>
+                </div>
+                <div class="feature-card" data-category="homestay" style="background-image: url('https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');">
+                    <div class="feature-icon">🏡</div>
+                    <h3>Homestay</h3>
+                    <p>Enjoy authentic local experiences with comfortable and welcoming homestays in your destination.</p>
+                </div>
+                <div class="feature-card" data-category="hotels" style="background-image: url('https://images.unsplash.com/photo-1564501049412-61c2a3083791?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');">
+                    <div class="feature-icon">🏨</div>
+                    <h3>Hotels</h3>
+                    <p>Discover comfortable hotels with modern amenities and exceptional service for your perfect stay.</p>
+                </div>
+                <div class="feature-card" data-category="nature" style="background-image: url('https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');">
+                    <div class="feature-icon">🌲</div>
+                    <h3>Nature Stay</h3>
+                    <p>Immerse yourself in nature with eco-friendly stays surrounded by mountains, forests, and scenic beauty.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Properties Section -->
+    <section id="properties" class="properties-section">
+        <div class="container">
+            <div class="section-title">
+                <h2>All Properties</h2>
+                <p>Explore our curated collection of amazing stays around the world</p>
+            </div>
+            <div class="properties-grid" id="all-properties-grid" data-server-rendered="{{ 1 if all_properties and all_properties|length > 0 else 0 }}">
+                {% if all_properties and all_properties|length > 0 %}
+                    {% for p in all_properties %}
+                    <a href="{{ url_for('property_detail', property_id=p.id) }}" class="property-item" style="background-image: url('{{ p.image_url }}');" data-prop-id="{{ p.id }}" data-name="{{ p.name }}" data-location="{{ p.location }}" data-category="{{ p.category }}" data-price="{{ '%.2f'|format(p.price) }}" data-rating="{{ '%.1f'|format(p.rating) }}" data-image="{{ p.image_url }}">
+                        <div class="property-item-content">
+                            <h3 class="property-item-name">{{ p.name }}</h3>
+                            <div class="property-item-location">📍 {{ p.location }} • {{ p.category|title }}</div>
+                            <div class="property-item-price">${{ '%.0f'|format(p.price) }}<span> / night</span></div>
+                            <div class="property-item-rating">
+                                <span class="rating-text">{{ '%.1f'|format(p.rating) }} / 5.0</span>
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                {% else %}
+                    <div style="grid-column: 1 / -1; text-align: center; color: #666;">No properties available yet.</div>
+                {% endif %}
+            </div>
+            <div class="pagination-container" id="pagination-container">
+                <!-- Pagination controls will be inserted here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Post Property Section -->
+    <section class="post-property-section">
+        <div class="post-property-container">
+            <div class="post-property-banner">
+                <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" alt="Post your property">
+            </div>
+            <div class="post-property-content">
+                <h2>Post Your Property</h2>
+                <p>Do you own a beautiful property? List it with us and reach thousands of travelers looking for their perfect stay. Start earning today by sharing your space with the world.</p>
+                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                    <a class="post-property-button" href="{% if session.get('user_logged_in') %}{{ url_for('post_property') }}{% else %}{{ url_for('user_login') }}{% endif %}">Submit Property</a>
+                    <button class="post-property-button" id="request-property-btn" style="background-color: #ff6b35; border: none; cursor: pointer;">Request Us</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Request Property Modal -->
+    <div id="request-property-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 2000; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: 12px; padding: 30px; max-width: 500px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="margin: 0; color: #333;">Request to List Your Property</h2>
+                <button id="close-request-modal" style="background: none; border: none; font-size: 28px; cursor: pointer; color: #999;">&times;</button>
+            </div>
+            <p style="color: #666; margin-bottom: 20px;">Fill in your details and we'll send you a link to list your property.</p>
+            <form id="request-property-form" style="display: flex; flex-direction: column; gap: 15px;">
+                <div>
+                    <label for="req-name" style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Full Name *</label>
+                    <input type="text" id="req-name" name="name" required placeholder="Your name" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 6px; font-size: 14px;">
+                </div>
+                <div>
+                    <label for="req-email" style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Email *</label>
+                    <input type="email" id="req-email" name="email" required placeholder="your@email.com" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 6px; font-size: 14px;">
+                </div>
+                <div>
+                    <label for="req-phone" style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Phone Number *</label>
+                    <input type="tel" id="req-phone" name="phone" required placeholder="+1 (234) 567-8901" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 6px; font-size: 14px;">
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button type="submit" style="flex: 1; padding: 12px; background: #1F3C88; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 14px;">Submit Request</button>
+                    <button type="button" id="cancel-request-modal" style="flex: 1; padding: 12px; background: #ddd; color: #333; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 14px;">Cancel</button>
+                </div>
+            </form>
+            <div id="request-message" style="display: none; margin-top: 15px; padding: 12px; border-radius: 6px; text-align: center;"></div>
+        </div>
+    </div>
+
+    <!-- About Section -->
+    <section id="about" class="about-section">
+        <div class="about-container">
+            <div class="about-content">
+                <div class="about-text">
+                    <h2>About Travyo</h2>
+                    <p>Travyo is your intelligent travel companion, designed to make trip planning simple, smart, and budget-friendly. We understand that planning a trip can be overwhelming, which is why we've created a comprehensive platform that takes care of every aspect of your journey.</p>
+                    <p>Whether you're looking for the perfect accommodation, planning your budget, or creating a packing list, Travyo provides all the tools you need in one convenient place. Our mission is to make travel accessible to everyone, regardless of their budget or experience level.</p>
+                    <p>We are a dedicated team of travel enthusiasts who believe that everyone deserves to explore the world. With Travyo, we're making that dream a reality by providing smart automation and clean design that takes the stress out of travel planning.</p>
+                </div>
+                
+                <div class="contact-info">
+                    <h3>Contact Us</h3>
+                    <div class="contact-item">
+                        <div class="contact-icon">�</div>
+                        <div class="contact-details">
+                            <h4>Email</h4>
+                            
+                            <p><a href="mailto:support@travyo.com">support@travyo.com</a></p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon">📞</div>
+                        <div class="contact-details">
+                            <h4>Phone</h4>
+                            <p><a href="tel:+1234567890">+1 (234) 567-890</a></p>
+                            <p>Mon-Fri: 9:00 AM - 6:00 PM</p>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-item">
+                        <div class="contact-icon">🌐</div>
+                        <div class="contact-details">
+                            <h4>Follow Us</h4>
+                            <p>
+                                <a href="#" target="_blank">Facebook</a> | 
+                                <a href="#" target="_blank">Twitter</a> | 
+                                <a href="#" target="_blank">Instagram</a> | 
+                                <a href="#" target="_blank">LinkedIn</a>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon">❓</div>
+                        <div class="contact-details">
+                            <h4>Need Help?</h4>
+                            <p>Check our FAQ section for quick answers about bookings,stays and travel planning.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2025 Travyo LLC. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Properties Modal -->
+    <div class="properties-modal" id="properties-modal">
+        <div class="properties-modal-content">
+            <button class="close-properties-modal" onclick="closePropertiesModal()">&times;</button>
+            <div class="properties-modal-header">
+                <h2 id="modal-category-title">Properties</h2>
+            </div>
+            <div class="properties-list" id="properties-list">
+                <!-- Properties will be dynamically inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Hero Slider Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const slides = document.querySelectorAll('.hero-slide');
+            let currentSlide = 0;
+            
+            function showSlide(index) {
+                // Remove active class from all slides
+                slides.forEach(slide => slide.classList.remove('active'));
+                
+                // Add active class to current slide
+                slides[index].classList.add('active');
+            }
+            
+            function nextSlide() {
+                currentSlide = (currentSlide + 1) % slides.length;
+                showSlide(currentSlide);
+            }
+            
+            // Change slide every 2 seconds (2000 milliseconds)
+            setInterval(nextSlide, 2000);
+            
+            // Properties Modal Functionality
+            const categoryCards = document.querySelectorAll('.category-grid .feature-card');
+
+            // Use server-rendered DOM to build properties list instead of dummy data
+            function getServerProperties() {
+                const nodes = document.querySelectorAll('#all-properties-grid .property-item');
+                return Array.from(nodes).map(el => ({
+                    id: el.getAttribute('data-prop-id'),
+                    name: el.getAttribute('data-name'),
+                    location: el.getAttribute('data-location'),
+                    category: el.getAttribute('data-category'),
+                    price: parseFloat(el.getAttribute('data-price') || '0'),
+                    rating: parseFloat(el.getAttribute('data-rating') || '0'),
+                    image_url: el.getAttribute('data-image')
+                }));
+            }
+            function getPropertiesByCategory(category) {
+                return getServerProperties().filter(p => p.category === category);
+            }
+            
+            // Function to generate stars HTML
+            function generateStars(rating) {
+                const fullStars = Math.floor(rating);
+                const hasHalfStar = (rating % 1) >= 0.5 && (rating % 1) < 1;
+                let starsHTML = '';
+                for (let i = 0; i < 5; i++) {
+                    if (i < fullStars) {
+                        starsHTML += '<span class="stars">★</span>';
+                    } else if (i === fullStars && hasHalfStar) {
+                        starsHTML += '<span class="stars">☆</span>';
+                    } else {
+                        starsHTML += '<span class="stars" style="color: #ddd;">☆</span>';
+                    }
+                }
+                return starsHTML;
+            }
+            
+            // Function to open properties modal
+            function openPropertiesModal(category) {
+                const modal = document.getElementById('properties-modal');
+                const modalTitle = document.getElementById('modal-category-title');
+                const propertiesList = document.getElementById('properties-list');
+                
+                const categoryName = category.charAt(0).toUpperCase() + category.slice(1);
+                modalTitle.textContent = categoryName + ' Properties';
+                
+                const properties = getPropertiesByCategory(category);
+                propertiesList.innerHTML = '';
+                
+                if (properties.length === 0) {
+                    propertiesList.innerHTML = '<p>No properties available in this category.</p>';
+                } else {
+                    properties.forEach(property => {
+                        const propertyCard = document.createElement('div');
+                        propertyCard.className = 'property-card';
+                        propertyCard.innerHTML = `
+                            <img src="${property.image_url || ''}" alt="${property.name}" class="property-image">
+                            <div class="property-info">
+                                <h3 class="property-name">${property.name}</h3>
+                                <div class="property-location">📍 ${property.location}</div>
+                                <div class="property-price">$${Math.round(property.price || 0)}<span> / night</span></div>
+                                <div class="property-rating">
+                                    ${generateStars(property.rating || 0)}
+                                    <span class="rating-text">${(property.rating || 0).toFixed(1)} / 5.0</span>
+                                </div>
+                                <button class="property-button" onclick="window.location.href='${`/property/${encodeURIComponent(property.id)}`}'">View Details</button>
+                            </div>
+                        `;
+                        propertiesList.appendChild(propertyCard);
+                    });
+                }
+                
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+            
+            // Function to close properties modal
+            window.closePropertiesModal = function() {
+                const modal = document.getElementById('properties-modal');
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            };
+            
+            // Add click event listeners to category cards
+            categoryCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    const category = this.getAttribute('data-category');
+                    if (category) {
+                        openPropertiesModal(category);
+                    }
+                });
+            });
+            
+            // Close modal when clicking outside
+            document.getElementById('properties-modal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closePropertiesModal();
+                }
+            });
+            
+            // Close modal on Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closePropertiesModal();
+                }
+            });
+            
+            // Populate All Properties Section
+            function getAllProperties() {
+                let allProperties = [];
+                Object.keys(propertiesData).forEach(category => {
+                    propertiesData[category].forEach((property, index) => {
+                        if (!property.id) {
+                            property.id = `${category}-${index + 1}`;
+                        }
+                        if (!property.description) {
+                            property.description = `Discover this amazing ${property.name} in ${property.location}. Enjoy world-class amenities and unforgettable experiences.`;
+                        }
+                        property.category = category;
+                        allProperties.push(property);
+                    });
+                });
+                return allProperties;
+            }
+            
+            // Pagination state
+            let currentPage = 1;
+            const propertiesPerPage = 6;
+            
+            function createPropertyItem(property) {
+                const propertyItem = document.createElement('div');
+                propertyItem.className = 'property-item';
+                propertyItem.style.backgroundImage = `url('${property.image}')`;
+                propertyItem.setAttribute('data-property-id', property.id);
+                
+                propertyItem.innerHTML = `
+                    <div class="property-item-content">
+                        <h3 class="property-item-name">${property.name}</h3>
+                        <div class="property-item-location">📍 ${property.location}</div>
+                        <div class="property-item-price">$${property.price}<span> / night</span></div>
+                        <div class="property-item-rating">
+                            ${generateStars(property.rating)}
+                            <span class="rating-text">${property.rating} / 5.0</span>
+                        </div>
+                    </div>
+                `;
+                
+                propertyItem.addEventListener('click', function() {
+                    const propertyId = this.getAttribute('data-property-id');
+                    window.location.href = `/property/${encodeURIComponent(propertyId)}`;
+                });
+                
+                return propertyItem;
+            }
+            
+            function displayProperties(page) {
+                const propertiesGrid = document.getElementById('all-properties-grid');
+                if (!propertiesGrid) return;
+                
+                const allProperties = getAllProperties();
+                const totalPages = Math.ceil(allProperties.length / propertiesPerPage);
+                const startIndex = (page - 1) * propertiesPerPage;
+                const endIndex = startIndex + propertiesPerPage;
+                const propertiesToShow = allProperties.slice(startIndex, endIndex);
+                
+                // Clear and populate grid
+                propertiesGrid.innerHTML = '';
+                propertiesToShow.forEach(property => {
+                    propertiesGrid.appendChild(createPropertyItem(property));
+                });
+                
+                // Update pagination controls
+                updatePaginationControls(page, totalPages, allProperties.length);
+            }
+            
+            function updatePaginationControls(page, totalPages, totalProperties) {
+                const paginationContainer = document.getElementById('pagination-container');
+                if (!paginationContainer) return;
+                
+                if (totalPages <= 1) {
+                    paginationContainer.innerHTML = '';
+                    return;
+                }
+                
+                const startItem = (page - 1) * propertiesPerPage + 1;
+                const endItem = Math.min(page * propertiesPerPage, totalProperties);
+                
+                let paginationHTML = `
+                    <button class="pagination-button" id="prev-btn" ${page === 1 ? 'disabled' : ''}>
+                        Previous
+                    </button>
+                    <div class="pagination-pages">
+                `;
+                
+                // Show page numbers (show max 5 pages)
+                let startPage = Math.max(1, page - 2);
+                let endPage = Math.min(totalPages, startPage + 4);
+                
+                // Adjust start page if we're near the end
+                if (endPage - startPage < 4) {
+                    startPage = Math.max(1, endPage - 4);
+                }
+                
+                if (startPage > 1) {
+                    paginationHTML += `<span class="page-number" data-page="1">1</span>`;
+                    if (startPage > 2) {
+                        paginationHTML += `<span class="pagination-info">...</span>`;
+                    }
+                }
+                
+                for (let i = startPage; i <= endPage; i++) {
+                    paginationHTML += `
+                        <span class="page-number ${i === page ? 'active' : ''}" data-page="${i}">
+                            ${i}
+                        </span>
+                    `;
+                }
+                
+                if (endPage < totalPages) {
+                    if (endPage < totalPages - 1) {
+                        paginationHTML += `<span class="pagination-info">...</span>`;
+                    }
+                    paginationHTML += `<span class="page-number" data-page="${totalPages}">${totalPages}</span>`;
+                }
+                
+                paginationHTML += `
+                    </div>
+                    <button class="pagination-button" id="next-btn" ${page === totalPages ? 'disabled' : ''}>
+                        Next
+                    </button>
+                    <span class="pagination-info">
+                        Showing ${startItem}-${endItem} of ${totalProperties} properties
+                    </span>
+                `;
+                
+                paginationContainer.innerHTML = paginationHTML;
+                
+                // Add event listeners
+                document.getElementById('prev-btn').addEventListener('click', () => {
+                    if (page > 1) {
+                        currentPage = page - 1;
+                        displayProperties(currentPage);
+                        window.scrollTo({ top: document.getElementById('properties').offsetTop - 100, behavior: 'smooth' });
+                    }
+                });
+                
+                document.getElementById('next-btn').addEventListener('click', () => {
+                    if (page < totalPages) {
+                        currentPage = page + 1;
+                        displayProperties(currentPage);
+                        window.scrollTo({ top: document.getElementById('properties').offsetTop - 100, behavior: 'smooth' });
+                    }
+                });
+                
+                // Add event listeners to page numbers
+                document.querySelectorAll('.page-number').forEach(pageBtn => {
+                    pageBtn.addEventListener('click', function() {
+                        const targetPage = parseInt(this.getAttribute('data-page'));
+                        if (targetPage !== page) {
+                            currentPage = targetPage;
+                            displayProperties(currentPage);
+                            window.scrollTo({ top: document.getElementById('properties').offsetTop - 100, behavior: 'smooth' });
+                        }
+                    });
+                });
+            }
+            
+            function populatePropertiesSection() {
+                displayProperties(1);
+            }
+            
+            // Initialize properties section on page load only if server didn't render
+            const gridEl = document.getElementById('all-properties-grid');
+            const hasServerProperties = gridEl && gridEl.getAttribute('data-server-rendered') === '1';
+            if (!hasServerProperties) {
+                populatePropertiesSection();
+            }
+            
+            // Store properties data globally for use in property detail page
+            window.propertiesData = propertiesData;
+            window.getAllProperties = getAllProperties;
+        });
+        
+        // Redirect functions
+        function redirectToLogin() {
+            window.location.href = "{{ url_for('user_login') }}";
+        }
+        
+        function handlePostProperty() {
+            const isLoggedIn = document.body.getAttribute('data-user-logged-in') === 'true';
+            if (isLoggedIn) {
+                // Redirect to post property page
+                window.location.href = "{{ url_for('post_property') }}";
+            } else {
+                // Redirect to login page
+                window.location.href = "{{ url_for('user_login') }}";
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+    
+    // Search functionality - redirect to login
+    const searchForms = document.querySelectorAll('.search-box');
+    searchForms.forEach(form => {
+        const input = form.querySelector('input');
+        const button = form.querySelector('button');
+        
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.location.href = "{{ url_for('user_login') }}";
+        });
+        
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                window.location.href = "{{ url_for('user_login') }}";
+            }
+        });
+    });
+    
+    // Filter functionality
+    const filterOptions = document.querySelectorAll('.filter-option input');
+    filterOptions.forEach(option => {
+        option.addEventListener('change', function() {
+            const filterType = this.id;
+            const isChecked = this.checked;
+            console.log(`${filterType} filter ${isChecked ? 'enabled' : 'disabled'}`);
+            // In a real app, this would filter the results
+        });
+    });
+    
+    // Popular item clicks
+    const popularItems = document.querySelectorAll('.popular-item');
+    popularItems.forEach(item => {
+        item.addEventListener('click', function() {
+            const title = this.querySelector('h4').textContent;
+            alert(`Showing results for: ${title}`);
+            // In a real app, this would show relevant results
+        });
+    });
+    
+    // Destination card clicks
+    const destinationCards = document.querySelectorAll('.destination-card');
+    destinationCards.forEach(card => {
+        card.addEventListener('click', function() {
+            const destination = this.querySelector('h3').textContent;
+            alert(`Showing details for: ${destination}`);
+            // In a real app, this would navigate to a details page
+        });
+    });
+    
+    // Packing list generation
+    const packingForm = document.querySelector('.packing-form form');
+    if (packingForm) {
+        packingForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const destination = document.getElementById('destination').value || 'your destination';
+            const duration = document.getElementById('trip-duration').value;
+            const season = document.getElementById('season').value;
+            const activities = Array.from(document.getElementById('activities').selectedOptions)
+                                .map(option => option.value);
+            
+            // Generate sample packing list
+            const packingResults = document.querySelector('.packing-results');
+            const categoriesContainer = document.querySelector('.packing-categories');
+            
+            categoriesContainer.innerHTML = `
+                <div class="packing-category">
+                    <h4>Clothing</h4>
+                    <ul>
+                        <li>5 T-shirts</li>
+                        <li>3 Pants/Shorts</li>
+                        <li>1 Jacket</li>
+                        <li>Underwear</li>
+                        <li>Socks</li>
+                        ${season === 'Winter' ? '<li>Thermal wear</li><li>Winter coat</li>' : ''}
+                        ${activities.includes('Beach') ? '<li>Swimwear</li><li>Flip flops</li>' : ''}
+                    </ul>
+                </div>
+                <div class="packing-category">
+                    <h4>Toiletries</h4>
+                    <ul>
+                        <li>Toothbrush & toothpaste</li>
+                        <li>Shampoo & conditioner</li>
+                        <li>Deodorant</li>
+                        <li>Razor</li>
+                        <li>Sunscreen</li>
+                    </ul>
+                </div>
+                <div class="packing-category">
+                    <h4>Electronics</h4>
+                    <ul>
+                        <li>Phone & charger</li>
+                        <li>Camera</li>
+                        <li>Power bank</li>
+                        <li>Travel adapter</li>
+                    </ul>
+                </div>
+                <div class="packing-category">
+                    <h4>Documents</h4>
+                    <ul>
+                        <li>Passport/ID</li>
+                        <li>Travel tickets</li>
+                        <li>Hotel reservations</li>
+                        <li>Travel insurance</li>
+                    </ul>
+                </div>
+            `;
+            
+            packingResults.style.display = 'block';
+            packingResults.scrollIntoView({ behavior: 'smooth' });
+        });
+    }
+    
+    // Flight search form
+    const flightForm = document.querySelector('.flight-search form');
+    if (flightForm) {
+        flightForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const from = document.getElementById('from').value || 'your origin';
+            const to = document.getElementById('to').value || 'your destination';
+            const departure = document.getElementById('departure').value;
+            const returnDate = document.getElementById('return').value;
+            const travelers = document.getElementById('travelers').value;
+            
+            alert(`Searching flights from ${from} to ${to} departing ${departure} returning ${returnDate} for ${travelers}`);
+            // In a real app, this would search for flights
+        });
+    }
+});
+
+// Search functionality - redirect to login
+const searchFormsAdditional = document.querySelectorAll('.search-box');
+searchFormsAdditional.forEach(form => {
+    const input = form.querySelector('input');
+    const button = form.querySelector('button');
+    
+    if (button && !button.onclick) {
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.location.href = "{{ url_for('user_login') }}";
+        });
+    }
+    
+    if (input) {
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                window.location.href = "{{ url_for('user_login') }}";
+            }
+        });
+    }
+});
+
+    // Request Property Modal Functionality
+    const requestPropertyBtn = document.getElementById('request-property-btn');
+    const requestPropertyModal = document.getElementById('request-property-modal');
+    const closeRequestModal = document.getElementById('close-request-modal');
+    const cancelRequestModal = document.getElementById('cancel-request-modal');
+    const requestPropertyForm = document.getElementById('request-property-form');
+    const requestMessage = document.getElementById('request-message');
+    
+    if (requestPropertyBtn) {
+        requestPropertyBtn.addEventListener('click', function() {
+            requestPropertyModal.style.display = 'flex';
+        });
+    }
+    
+    if (closeRequestModal) {
+        closeRequestModal.addEventListener('click', function() {
+            requestPropertyModal.style.display = 'none';
+            requestPropertyForm.style.display = 'flex';
+            requestMessage.style.display = 'none';
+            requestPropertyForm.reset();
+        });
+    }
+    
+    if (cancelRequestModal) {
+        cancelRequestModal.addEventListener('click', function() {
+            requestPropertyModal.style.display = 'none';
+            requestPropertyForm.style.display = 'flex';
+            requestMessage.style.display = 'none';
+            requestPropertyForm.reset();
+        });
+    }
+    
+    // Close modal when clicking outside
+    if (requestPropertyModal) {
+        requestPropertyModal.addEventListener('click', function(e) {
+            if (e.target === requestPropertyModal) {
+                requestPropertyModal.style.display = 'none';
+                requestPropertyForm.style.display = 'flex';
+                requestMessage.style.display = 'none';
+                requestPropertyForm.reset();
+            }
+        });
+    }
+    
+    if (requestPropertyForm) {
+        requestPropertyForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            fetch('{{ url_for("request_property") }}', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    requestPropertyForm.style.display = 'none';
+                    requestMessage.style.display = 'block';
+                    requestMessage.style.background = '#d4edda';
+                    requestMessage.style.color = '#155724';
+                    requestMessage.style.border = '1px solid #c3e6cb';
+                    requestMessage.innerHTML = '<i class="fas fa-check-circle"></i> ' + data.message;
+                    
+                    // Auto-close modal after 3 seconds
+                    setTimeout(() => {
+                        requestPropertyModal.style.display = 'none';
+                        requestPropertyForm.style.display = 'flex';
+                        requestMessage.style.display = 'none';
+                        requestPropertyForm.reset();
+                    }, 3000);
+                } else {
+                    requestMessage.style.display = 'block';
+                    requestMessage.style.background = '#f8d7da';
+                    requestMessage.style.color = '#721c24';
+                    requestMessage.style.border = '1px solid #f5c6cb';
+                    requestMessage.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + data.message;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                requestMessage.style.display = 'block';
+                requestMessage.style.background = '#f8d7da';
+                requestMessage.style.color = '#721c24';
+                requestMe

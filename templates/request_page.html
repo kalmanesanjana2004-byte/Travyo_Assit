@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Request – Travyo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root { --primary: #1F3C88; --secondary: #ff6b35; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f5f7fb; color: #333; }
+        header {
+            background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            padding: 16px 40px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .logo { font-size: 26px; font-weight: 800; color: var(--primary); text-decoration: none; }
+        .logo span { color: var(--secondary); }
+        .back-link { color: var(--primary); text-decoration: none; font-weight: 600; font-size: 14px; }
+        .container { max-width: 620px; margin: 50px auto; padding: 0 20px 60px; }
+        .page-header { text-align: center; margin-bottom: 32px; }
+        .page-header h1 { font-size: 28px; color: #222; margin-bottom: 8px; }
+        .page-header p { color: #888; }
+        .card { background: #fff; border-radius: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); padding: 36px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; color: #444; margin-bottom: 7px; }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%; padding: 11px 14px; border: 2px solid #e8e8e8; border-radius: 8px;
+            font-size: 15px; outline: none; transition: border-color 0.2s; font-family: inherit;
+        }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--primary); }
+        .form-group textarea { resize: vertical; min-height: 100px; }
+        .btn-submit {
+            width: 100%; padding: 14px; background: var(--secondary); color: #fff;
+            border: none; border-radius: 8px; font-size: 15px; font-weight: 700;
+            cursor: pointer; transition: background 0.2s;
+        }
+        .btn-submit:hover { background: #e55a2b; }
+        .alert { padding: 14px 18px; border-radius: 8px; font-size: 14px; margin-bottom: 20px; display: none; }
+        .alert-success { background: #eafaf1; color: #1e8449; border: 1px solid #c3e6cb; }
+        .alert-danger  { background: #fdf0f0; color: #c0392b; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+<header>
+    <a class="logo" href="{{ url_for('index') }}">Trav<span>yo</span></a>
+    <a class="back-link" href="{{ url_for('index') }}"><i class="fas fa-arrow-left"></i> Back to Home</a>
+</header>
+
+<div class="container">
+    <div class="page-header">
+        <h1><i class="fas fa-envelope" style="color:var(--secondary)"></i> Submit a Request</h1>
+        <p>Want to list your property or need assistance? Fill out the form below.</p>
+    </div>
+
+    <div class="card">
+        <div class="alert alert-success" id="success-msg"></div>
+        <div class="alert alert-danger" id="error-msg"></div>
+
+        <form id="request-form">
+            <div class="form-group">
+                <label for="name">Full Name *</label>
+                <input type="text" id="name" name="name" placeholder="Your name" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email Address *</label>
+                <input type="email" id="email" name="email" placeholder="you@example.com" required>
+            </div>
+            <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" name="phone" placeholder="+1 (234) 567-890">
+            </div>
+            <button type="submit" class="btn-submit" id="submit-btn">
+                <i class="fas fa-paper-plane"></i> Submit Request
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+document.getElementById('request-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true; btn.textContent = 'Submitting…';
+
+    const formData = new FormData(this);
+    try {
+        const resp = await fetch('{{ url_for("request_property") }}', { method: 'POST', body: formData });
+        const data = await resp.json();
+        if (data.status === 'success') {
+            document.getElementById('success-msg').textContent = data.message;
+            document.getElementById('success-msg').style.display = 'block';
+            document.getElementById('error-msg').style.display = 'none';
+            this.reset();
+        } else {
+            document.getElementById('error-msg').textContent = data.message;
+            document.getElementById('error-msg').style.display = 'block';
+        }
+    } catch(err) {
+        document.getElementById('error-msg').textContent = 'Something went wrong. Please try again.';
+        document.getElementById('error-msg').style.display = 'block';
+    }
+    btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Request';
+});
+</script>
+</body>
+</html>

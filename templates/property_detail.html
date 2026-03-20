@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ property.name }} – Travyo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root { --primary: #1F3C88; --secondary: #ff6b35; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f5f7fb; color: #333; }
+        header {
+            background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            padding: 16px 40px; display: flex; justify-content: space-between;
+            align-items: center; position: sticky; top: 0; z-index: 100;
+        }
+        .logo { font-size: 26px; font-weight: 800; color: var(--primary); text-decoration: none; }
+        .logo span { color: var(--secondary); }
+        .nav-links { display: flex; gap: 20px; align-items: center; }
+        .nav-links a { color: #555; text-decoration: none; font-weight: 500; font-size: 15px; }
+        .nav-links a.btn {
+            background: var(--primary); color: #fff; padding: 9px 20px;
+            border-radius: 6px; transition: background 0.2s;
+        }
+        .nav-links a.btn:hover { background: #162B5E; }
+        .container { max-width: 960px; margin: 40px auto; padding: 0 20px 60px; }
+        .hero-img {
+            width: 100%; height: 420px; object-fit: cover;
+            border-radius: 14px; margin-bottom: 30px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+        .layout { display: grid; grid-template-columns: 1fr 350px; gap: 30px; }
+        @media(max-width: 768px) { .layout { grid-template-columns: 1fr; } }
+        .detail h1 { font-size: 30px; color: #1a1a1a; margin-bottom: 8px; }
+        .meta { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+        .meta span { display: flex; align-items: center; gap: 6px; font-size: 14px; color: #666; }
+        .meta .cat-badge {
+            background: rgba(31,60,136,0.1); color: var(--primary);
+            padding: 3px 12px; border-radius: 20px; font-weight: 600; font-size: 13px;
+        }
+        .price-tag { font-size: 26px; font-weight: 800; color: var(--secondary); margin-bottom: 20px; }
+        .price-tag small { font-size: 14px; color: #888; font-weight: 400; }
+        .desc-section h3 { font-size: 18px; font-weight: 700; margin-bottom: 10px; color: #222; }
+        .desc-section p { color: #555; line-height: 1.8; }
+        .booking-card {
+            background: #fff; border-radius: 14px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1); padding: 28px; position: sticky; top: 80px;
+        }
+        .booking-card h3 { font-size: 18px; margin-bottom: 20px; color: #222; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; color: #444; margin-bottom: 6px; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 10px 12px; border: 2px solid #e8e8e8;
+            border-radius: 8px; font-size: 14px; outline: none; transition: border-color 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus { border-color: var(--primary); }
+        .price-breakdown {
+            background: #f8f9fb; border-radius: 8px; padding: 14px;
+            margin: 16px 0; font-size: 14px;
+        }
+        .price-breakdown div { display: flex; justify-content: space-between; margin-bottom: 6px; color: #666; }
+        .price-breakdown .total { font-weight: 700; color: #222; font-size: 16px; border-top: 1px solid #ddd; padding-top: 8px; margin-top: 4px; }
+        .btn-book {
+            width: 100%; padding: 14px; background: var(--secondary); color: #fff;
+            border: none; border-radius: 8px; font-size: 16px; font-weight: 700;
+            cursor: pointer; transition: background 0.2s;
+        }
+        .btn-book:hover { background: #e55a2b; }
+        .login-note { text-align: center; margin-top: 12px; font-size: 13px; color: #888; }
+        .login-note a { color: var(--primary); font-weight: 600; text-decoration: none; }
+        .alert { padding: 12px 16px; border-radius: 8px; font-size: 14px; margin-bottom: 20px; }
+        .alert-success { background: #eafaf1; color: #1e8449; border: 1px solid #c3e6cb; }
+        .alert-danger  { background: #fdf0f0; color: #c0392b; border: 1px solid #f5c6cb; }
+        .rating-stars { color: #f59e0b; font-size: 15px; }
+    </style>
+</head>
+<body>
+<header>
+    <a class="logo" href="{{ url_for('index') }}">Trav<span>yo</span></a>
+    <div class="nav-links">
+        <a href="{{ url_for('index') }}">← Back</a>
+        {% if session.get('user_id') %}
+            <a href="{{ url_for('dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('user_logout') }}">Logout</a>
+        {% else %}
+            <a href="{{ url_for('user_login') }}" class="btn">Sign In</a>
+        {% endif %}
+    </div>
+</header>
+
+<div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for cat, msg in messages %}
+        <div class="alert alert-{{ cat }}">{{ msg }}</div>
+        {% endfor %}
+    {% endwith %}
+
+    <img src="{{ property.image_url or 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=960&q=80' }}"
+         alt="{{ property.name }}" class="hero-img">
+
+    <div class="layout">
+        <div class="detail">
+            <h1>{{ property.name }}</h1>
+            <div class="meta">
+                <span class="cat-badge">{{ property.category | title }}</span>
+                <span><i class="fas fa-map-marker-alt" style="color:var(--secondary)"></i> {{ property.location }}</span>
+                <span class="rating-stars">
+                    {% set r = property.rating | float %}
+                    {% for i in range(5) %}
+                        {% if i < r|int %}<i class="fas fa-star"></i>{% elif i < r %}<i class="fas fa-star-half-alt"></i>{% else %}<i class="far fa-star"></i>{% endif %}
+                    {% endfor %}
+                    <span style="color:#555; margin-left:4px;">{{ "%.1f" | format(property.rating) }}</span>
+                </span>
+            </div>
+            <div class="price-tag">${{ "%.0f" | format(property.price) }} <small>/ night</small></div>
+            <div class="desc-section">
+                <h3>About this property</h3>
+                <p>{{ property.description or "A wonderful place to stay during your travels. Enjoy top-class amenities, beautiful surroundings, and impeccable service." }}</p>
+            </div>
+        </div>
+
+        <div class="booking-card">
+            <h3>Book This Property</h3>
+
+            {% if session.get('user_id') %}
+            <form method="POST" action="{{ url_for('book_property', property_id=property.id) }}" id="booking-form">
+                <div class="form-group">
+                    <label>Check-in Date</label>
+                    <input type="date" name="check_in" id="check_in" required
+                           min="{{ now_date if now_date else '' }}">
+                </div>
+                <div class="form-group">
+                    <label>Check-out Date</label>
+                    <input type="date" name="check_out" id="check_out" required>
+                </div>
+                <div class="form-group">
+                    <label>Guests</label>
+                    <select name="guests">
+                        {% for n in range(1, 11) %}
+                        <option value="{{ n }}">{{ n }} Guest{{ 's' if n > 1 }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Rooms</label>
+                    <select name="rooms" id="rooms_select">
+                        {% for n in range(1, 6) %}
+                        <option value="{{ n }}">{{ n }} Room{{ 's' if n > 1 }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="price-breakdown" id="price-breakdown">
+                    <div><span>Price per night</span><span>${{ "%.2f" | format(property.price) }}</span></div>
+                    <div><span>Nights</span><span id="nights-count">–</span></div>
+                    <div><span>Rooms</span><span id="rooms-count">1</span></div>
+                    <div class="total"><span>Total</span><span id="total-price">–</span></div>
+                </div>
+                <button type="submit" class="btn-book">
+                    <i class="fas fa-calendar-check"></i> Confirm Booking
+                </button>
+            </form>
+            {% else %}
+            <p style="color:#666; margin-bottom:16px;">Please sign in to book this property.</p>
+            <a href="{{ url_for('user_login') }}" class="btn-book" style="display:block; text-align:center; text-decoration:none;">
+                <i class="fas fa-sign-in-alt"></i> Sign In to Book
+            </a>
+            <div class="login-note">New here? <a href="{{ url_for('user_register') }}">Create an account</a></div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+const pricePerNight = {{ property.price | float }};
+
+function updatePrice() {
+    const ci = document.getElementById('check_in').value;
+    const co = document.getElementById('check_out').value;
+    const rooms = parseInt(document.getElementById('rooms_select').value) || 1;
+
+    document.getElementById('rooms-count').textContent = rooms;
+
+    if (ci && co) {
+        const d1 = new Date(ci), d2 = new Date(co);
+        const nights = Math.max(0, (d2 - d1) / 86400000);
+        document.getElementById('nights-count').textContent = nights;
+        document.getElementById('total-price').textContent =
+            '$' + (pricePerNight * nights * rooms).toFixed(2);
+    }
+}
+
+document.getElementById('check_in') && document.getElementById('check_in').addEventListener('change', function() {
+    const co = document.getElementById('check_out');
+    co.min = this.value;
+    updatePrice();
+});
+document.getElementById('check_out') && document.getElementById('check_out').addEventListener('change', updatePrice);
+document.getElementById('rooms_select') && document.getElementById('rooms_select').addEventListener('change', updatePrice);
+
+// Set today as min date
+const today = new Date().toISOString().split('T')[0];
+const ci = document.getElementById('check_in');
+if (ci) { ci.min = today; ci.value = today; }
+const co = document.getElementById('check_out');
+if (co) { co.min = today; }
+</script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+travyo.db
+__pycache__/
+*.pyc
+*.pyo
+static/uploads/
+.env
+*.egg-info/
+dist/
+build/
