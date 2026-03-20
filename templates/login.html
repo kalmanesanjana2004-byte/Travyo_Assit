@@ -127,7 +127,16 @@
         .divider::before, .divider::after {
             content: ''; flex: 1; height: 1px; background: #e8e8e8;
         }
-        .terms { font-size: 12px; color: #aaa; text-align: center; margin-top: 14px; }
+        .admin-hint {
+            background: #f0f4ff;
+            border: 1px dashed #b0c0f0;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #555;
+            margin-top: 20px;
+        }
+        .admin-hint strong { color: var(--primary); }
     </style>
 </head>
 <body>
@@ -174,11 +183,8 @@
             Don't have an account? <a href="{{ url_for('user_register') }}">Sign Up</a>
         </div>
 
-        <div style="text-align:center;margin-top:16px;padding-top:16px;border-top:1px solid #f0f0f0">
-            <a href="{{ url_for('admin_login') }}"
-               style="font-size:12px;color:#bbb;text-decoration:none;display:inline-flex;align-items:center;gap:5px;">
-                <i class="fas fa-shield-alt"></i> Admin Login
-            </a>
+        <div class="admin-hint">
+            <strong>Demo Admin:</strong> admin@travyo.com / admin123
         </div>
     </div>
 </div>
