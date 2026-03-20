@@ -226,7 +226,7 @@ def admin_required(f):
     def decorated(*args, **kwargs):
         if not session.get("is_admin"):
             flash("Admin access only.", "danger")
-            return redirect(url_for("admin_login"))
+            return redirect(url_for("user_login"))
         return f(*args, **kwargs)
     return decorated
 
@@ -289,22 +289,35 @@ def index():
     return render_template("index.html", all_properties=props, featured_properties=featured)
 
 
-# ── User login / register / logout ───────────────────────────────────────────
+# ── Unified login (Admin + User on one page) ─────────────────────────────────
 @app.route("/login", methods=["GET","POST"])
 def user_login():
+    # Already logged in → redirect appropriately
     if "user_id" in session:
-        return redirect(url_for("dashboard"))
+        return redirect(url_for("admin_dashboard") if session.get("is_admin") else url_for("dashboard"))
     error = None
     if request.method == "POST":
         email = request.form.get("email","").strip()
         pwd   = request.form.get("password","")
-        user  = query_db("SELECT * FROM users WHERE email=? AND role='user'", (email,), one=True)
+
+        # ── Check admin credentials first (env-var based) ──
+        admin_row = query_db("SELECT * FROM users WHERE role='admin' LIMIT 1", one=True)
+        if admin_row and email == ADMIN_EMAIL and check_password_hash(admin_row["password"], pwd):
+            session.clear()
+            session.update({"user_id": admin_row["id"], "role": "admin",
+                            "name": admin_row["name"], "is_admin": True})
+            log_activity("Admin logged in.", "fas fa-user-shield")
+            return redirect(url_for("admin_dashboard"))
+
+        # ── Check regular user credentials ──
+        user = query_db("SELECT * FROM users WHERE email=? AND role='user'", (email,), one=True)
         if user and check_password_hash(user["password"], pwd):
             session.clear()
             session.update({"user_id": user["id"], "role": "user",
                             "name": user["name"], "user_logged_in": True})
             log_activity(f"{user['name']} logged in.", "fas fa-sign-in-alt")
             return redirect(url_for("dashboard"))
+
         error = "Invalid email or password."
     return render_template("login.html", error=error)
 
@@ -345,30 +358,19 @@ def user_logout():
     return redirect(url_for("index"))
 
 
-# ── Admin login (separate page, env-var credentials) ─────────────────────────
+# ── Admin login alias (kept for backward-compat; redirects to unified login) ─
 @app.route("/admin/login", methods=["GET","POST"])
 def admin_login():
+    """Redirect legacy /admin/login URL to the unified login page."""
     if session.get("is_admin"):
         return redirect(url_for("admin_dashboard"))
-    error = None
-    if request.method == "POST":
-        email = request.form.get("email","").strip()
-        pwd   = request.form.get("password","")
-        admin = query_db("SELECT * FROM users WHERE email=? AND role='admin'", (email,), one=True)
-        if admin and check_password_hash(admin["password"], pwd):
-            session.clear()
-            session.update({"user_id": admin["id"], "role": "admin",
-                            "name": admin["name"], "is_admin": True})
-            log_activity("Admin logged in.", "fas fa-user-shield")
-            return redirect(url_for("admin_dashboard"))
-        error = "Invalid admin credentials."
-    return render_template("admin_login.html", error=error)
+    return redirect(url_for("user_login"))
 
 
 @app.route("/admin/logout")
 def admin_logout():
     session.clear()
-    return redirect(url_for("admin_login"))
+    return redirect(url_for("user_login"))
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -998,6 +1000,123 @@ def delete_request(rid):
     execute_db("DELETE FROM requests WHERE id=?", (rid,))
     flash("Request deleted.", "success")
     return redirect(url_for("admin_dashboard"))
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# AI Chatbot – keyword-based Q&A (no external API required)
+# ─────────────────────────────────────────────────────────────────────────────
+CHATBOT_QA = [
+    {
+        "keywords": ["book", "booking", "reserve", "reservation", "how to book"],
+        "answer": (
+            "📋 <strong>How to Book:</strong><br>"
+            "1. Browse properties on the home page.<br>"
+            "2. Click a property to open its detail page.<br>"
+            "3. Choose your check-in / check-out dates, guests & rooms.<br>"
+            "4. Click <em>Confirm Booking</em>.<br>"
+            "5. Complete payment (UPI / Credit Card / Debit Card).<br>"
+            "6. You'll receive a PDF receipt instantly! ✅"
+        ),
+    },
+    {
+        "keywords": ["payment", "pay", "upi", "credit card", "debit card", "method"],
+        "answer": (
+            "💳 <strong>Payment Methods:</strong><br>"
+            "• <strong>UPI</strong> – Enter your UPI ID (e.g. name@paytm)<br>"
+            "• <strong>Credit Card</strong> – Visa, Mastercard accepted<br>"
+            "• <strong>Debit Card</strong> – All major banks supported<br><br>"
+            "All payments are SSL-encrypted and fully secure. 🔒"
+        ),
+    },
+    {
+        "keywords": ["list", "post property", "add property", "host", "rent out", "landlord"],
+        "answer": (
+            "🏠 <strong>List Your Property:</strong><br>"
+            "1. Sign up / log in to your account.<br>"
+            "2. Go to your <em>Dashboard</em> → <em>Post Property</em>.<br>"
+            "3. Fill in name, location, category, price & upload a photo.<br>"
+            "4. Submit for review – our team approves within 24–48 hours.<br><br>"
+            "You can also use the <a href='/request-us' style='color:#1F3C88'>Request Us</a> form for assistance! 📬"
+        ),
+    },
+    {
+        "keywords": ["confirm", "confirmation", "receipt", "pdf", "download"],
+        "answer": (
+            "📄 <strong>Booking Confirmation:</strong><br>"
+            "After payment you will see a confirmation page with your Booking ID.<br>"
+            "You can download a PDF receipt anytime from your Dashboard → Bookings. ✅"
+        ),
+    },
+    {
+        "keywords": ["cancel", "cancellation", "refund"],
+        "answer": (
+            "❌ <strong>Cancellations & Refunds:</strong><br>"
+            "To cancel a booking, go to Dashboard → My Bookings and contact support via the Request form.<br>"
+            "Refund timelines depend on the payment method (usually 3–7 business days)."
+        ),
+    },
+    {
+        "keywords": ["contact", "support", "help", "email", "phone", "reach"],
+        "answer": (
+            "📞 <strong>Contact Support:</strong><br>"
+            "• Use the <a href='/request-us' style='color:#1F3C88'>Request Us</a> form on our website.<br>"
+            "• Or email us at <strong>support@travyo.com</strong><br>"
+            "• Our team responds within 24 hours. We're happy to help! 😊"
+        ),
+    },
+    {
+        "keywords": ["sign up", "register", "account", "create account"],
+        "answer": (
+            "👤 <strong>Create an Account:</strong><br>"
+            "Click <em>Sign Up</em> in the top navigation, enter your name, email & password.<br>"
+            "That's it – you'll be logged in immediately and ready to explore! 🎉"
+        ),
+    },
+    {
+        "keywords": ["price", "cost", "cheap", "affordable", "expensive", "rate"],
+        "answer": (
+            "💰 <strong>Pricing:</strong><br>"
+            "Property prices are listed as <em>USD per night</em>.<br>"
+            "The total cost is automatically calculated based on your dates, number of rooms & guests.<br>"
+            "Filter by category to find options in your budget! 🔍"
+        ),
+    },
+    {
+        "keywords": ["hello", "hi", "hey", "good morning", "good afternoon", "good evening", "greet"],
+        "answer": (
+            "👋 <strong>Hello! Welcome to Travyo!</strong><br>"
+            "I'm your travel assistant. Ask me about:<br>"
+            "• How to book a property<br>"
+            "• Payment options<br>"
+            "• Listing your property<br>"
+            "• Cancellations &amp; support<br>"
+            "What can I help you with today? 😊"
+        ),
+    },
+]
+
+@app.route("/chatbot", methods=["POST"])
+def chatbot():
+    """Keyword-based chatbot endpoint. Returns a JSON response."""
+    data    = request.get_json(silent=True) or {}
+    msg     = (data.get("message") or "").strip().lower()
+
+    if not msg:
+        return jsonify({"reply": "Please type a message so I can help you! 😊"})
+
+    # Match keywords
+    for qa in CHATBOT_QA:
+        if any(kw in msg for kw in qa["keywords"]):
+            return jsonify({"reply": qa["answer"]})
+
+    # Fallback
+    return jsonify({
+        "reply": (
+            "🤔 I'm not sure about that, but I'm here to help!<br>"
+            "Try asking about: <em>booking, payments, listing a property, "
+            "cancellations, or support</em>. 😊"
+        )
+    })
 
 
 # ─────────────────────────────────────────────────────────────────────────────
