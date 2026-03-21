@@ -42,7 +42,10 @@ os.makedirs(os.path.join(BASE_DIR, "static", "images"), exist_ok=True)
 app.config["UPLOAD_FOLDER"]         = UPLOAD_FOLDER
 app.config["MAX_CONTENT_LENGTH"]    = 16 * 1024 * 1024   # 16 MB
 
-# Admin credentials from env – never shown in UI or code comments
+# ── Admin credentials ────────────────────────────────────────────────────────
+# Default hardcoded: username=admin / password=admin123
+# Override via environment variables for production.
+ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "admin")
 ADMIN_EMAIL    = os.environ.get("ADMIN_EMAIL",    "admin@travyo.com")
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin123")
 
@@ -90,6 +93,7 @@ def init_db():
     db.executescript("""
     CREATE TABLE IF NOT EXISTS users (
         id         INTEGER PRIMARY KEY AUTOINCREMENT,
+        username   TEXT    NOT NULL UNIQUE,
         name       TEXT    NOT NULL,
         email      TEXT    NOT NULL UNIQUE,
         password   TEXT    NOT NULL,
@@ -154,7 +158,7 @@ def init_db():
     );
     """)
 
-    # Live-migrate bookings table if upgrading from old schema
+    # ── Live-migrate bookings table ───────────────────────────────────────────
     cols = [r[1] for r in db.execute("PRAGMA table_info(bookings)").fetchall()]
     for col, defn in [
         ("payment_method", "TEXT"),
@@ -164,19 +168,43 @@ def init_db():
         if col not in cols:
             db.execute(f"ALTER TABLE bookings ADD COLUMN {col} {defn}")
 
-    # Seed / sync admin account (credentials come from env vars)
+    # ── Live-migrate users table: add username column if missing ──────────────
+    user_cols = [r[1] for r in db.execute("PRAGMA table_info(users)").fetchall()]
+    if "username" not in user_cols:
+        db.execute("ALTER TABLE users ADD COLUMN username TEXT")
+        # Back-fill existing rows with a derived username from email prefix
+        for row in db.execute("SELECT id, email FROM users").fetchall():
+            base = (row[1].split("@")[0] or "user").lower().replace(".", "_")
+            candidate = base
+            suffix = 1
+            while db.execute(
+                "SELECT id FROM users WHERE username=? AND id!=?", (candidate, row[0])
+            ).fetchone():
+                candidate = f"{base}_{suffix}"
+                suffix += 1
+            db.execute("UPDATE users SET username=? WHERE id=?", (candidate, row[0]))
+        # Create unique index for fast lookups
+        db.execute(
+            "CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username ON users(username)"
+        )
+
+    # ── Seed / sync admin account ─────────────────────────────────────────────
+    # Hardcoded defaults: username=admin, password=admin123
+    # Override via ADMIN_USERNAME, ADMIN_EMAIL, ADMIN_PASSWORD env vars in prod.
     admin = db.execute("SELECT id FROM users WHERE role='admin'").fetchone()
     if not admin:
         db.execute(
-            "INSERT INTO users (name,email,password,role) VALUES (?,?,?,?)",
-            ("Admin", ADMIN_EMAIL, generate_password_hash(ADMIN_PASSWORD), "admin"),
+            "INSERT INTO users (username,name,email,password,role) VALUES (?,?,?,?,?)",
+            (ADMIN_USERNAME, "Admin", ADMIN_EMAIL,
+             generate_password_hash(ADMIN_PASSWORD), "admin"),
         )
         db.execute("INSERT INTO activities (message,icon) VALUES (?,?)",
                    ("Admin account initialised.", "fas fa-user-shield"))
     else:
+        # Sync credentials on every restart so env changes take effect
         db.execute(
-            "UPDATE users SET email=?,password=? WHERE role='admin'",
-            (ADMIN_EMAIL, generate_password_hash(ADMIN_PASSWORD)),
+            "UPDATE users SET username=?,email=?,password=? WHERE role='admin'",
+            (ADMIN_USERNAME, ADMIN_EMAIL, generate_password_hash(ADMIN_PASSWORD)),
         )
 
     # Seed sample properties on first run
@@ -290,36 +318,56 @@ def index():
     return render_template("index.html", all_properties=props, featured_properties=featured)
 
 
-# ── Unified login (Admin + User on one page) ─────────────────────────────────
+# ── Unified login (Admin + User — single page) ───────────────────────────────
 @app.route("/login", methods=["GET","POST"])
 def user_login():
     # Already logged in → redirect appropriately
     if "user_id" in session:
-        return redirect(url_for("admin_dashboard") if session.get("is_admin") else url_for("dashboard"))
+        return redirect(
+            url_for("admin_dashboard") if session.get("is_admin") else url_for("dashboard")
+        )
+
     error = None
     if request.method == "POST":
-        email = request.form.get("email","").strip()
-        pwd   = request.form.get("password","")
+        identifier = request.form.get("identifier", "").strip()   # username OR email
+        pwd        = request.form.get("password", "")
 
-        # ── Check admin credentials first (env-var based) ──
-        admin_row = query_db("SELECT * FROM users WHERE role='admin' LIMIT 1", one=True)
-        if admin_row and email == ADMIN_EMAIL and check_password_hash(admin_row["password"], pwd):
-            session.clear()
-            session.update({"user_id": admin_row["id"], "role": "admin",
-                            "name": admin_row["name"], "is_admin": True})
-            log_activity("Admin logged in.", "fas fa-user-shield")
-            return redirect(url_for("admin_dashboard"))
+        if not identifier or not pwd:
+            error = "Please enter your username/email and password."
+        else:
+            # ── 1. Try to find the user by username or email ──────────────────
+            user = query_db(
+                "SELECT * FROM users WHERE username=? OR email=?",
+                (identifier, identifier), one=True
+            )
 
-        # ── Check regular user credentials ──
-        user = query_db("SELECT * FROM users WHERE email=? AND role='user'", (email,), one=True)
-        if user and check_password_hash(user["password"], pwd):
-            session.clear()
-            session.update({"user_id": user["id"], "role": "user",
-                            "name": user["name"], "user_logged_in": True})
-            log_activity(f"{user['name']} logged in.", "fas fa-sign-in-alt")
-            return redirect(url_for("dashboard"))
+            if user and check_password_hash(user["password"], pwd):
+                session.clear()
+                if user["role"] == "admin":
+                    session.update({
+                        "user_id":  user["id"],
+                        "role":     "admin",
+                        "name":     user["name"],
+                        "username": user["username"],
+                        "is_admin": True,
+                    })
+                    log_activity("Admin logged in.", "fas fa-user-shield")
+                    flash(f"Welcome back, {user['name']}! 👋", "success")
+                    return redirect(url_for("admin_dashboard"))
+                else:
+                    session.update({
+                        "user_id":        user["id"],
+                        "role":           "user",
+                        "name":           user["name"],
+                        "username":       user["username"],
+                        "user_logged_in": True,
+                    })
+                    log_activity(f"{user['name']} logged in.", "fas fa-sign-in-alt")
+                    flash(f"Welcome back, {user['name']}! 👋", "success")
+                    return redirect(url_for("dashboard"))
+            else:
+                error = "Invalid username / email or password."
 
-        error = "Invalid email or password."
     return render_template("login.html", error=error)
 
 
@@ -327,28 +375,51 @@ def user_login():
 def user_register():
     if "user_id" in session:
         return redirect(url_for("dashboard"))
+
     error = None
     if request.method == "POST":
-        name  = request.form.get("name","").strip()
-        email = request.form.get("email","").strip()
-        pwd   = request.form.get("password","")
-        if not name or not email or not pwd:
+        username = request.form.get("username", "").strip().lower()
+        name     = request.form.get("name",     "").strip()
+        email    = request.form.get("email",    "").strip().lower()
+        pwd      = request.form.get("password", "")
+        pwd2     = request.form.get("confirm_password", "")
+
+        # ── Validation ────────────────────────────────────────────────────────
+        if not username or not name or not email or not pwd or not pwd2:
             error = "All fields are required."
+        elif len(username) < 3:
+            error = "Username must be at least 3 characters."
+        elif not username.replace("_","").replace("-","").isalnum():
+            error = "Username may only contain letters, numbers, hyphens and underscores."
+        elif pwd != pwd2:
+            error = "Passwords do not match."
+        elif len(pwd) < 6:
+            error = "Password must be at least 6 characters."
+        elif query_db("SELECT id FROM users WHERE username=?", (username,), one=True):
+            error = "Username already taken. Please choose another."
         elif query_db("SELECT id FROM users WHERE email=?", (email,), one=True):
-            error = "Email already registered."
+            error = "Email already registered. Try logging in instead."
         else:
             uid = execute_db(
-                "INSERT INTO users (name,email,password,role) VALUES (?,?,?,?)",
-                (name, email, generate_password_hash(pwd), "user"),
+                "INSERT INTO users (username,name,email,password,role) VALUES (?,?,?,?,?)",
+                (username, name, email, generate_password_hash(pwd), "user"),
             )
-            execute_db("INSERT INTO notifications (user_id,message,type) VALUES (?,?,?)",
-                       (uid, f"Welcome to Travyo, {name}!", "welcome"))
-            log_activity(f"New user: {name}.", "fas fa-user-plus")
+            execute_db(
+                "INSERT INTO notifications (user_id,message,type) VALUES (?,?,?)",
+                (uid, f"Welcome to Travyo, {name}! Your account is ready. 🎉", "welcome"),
+            )
+            log_activity(f"New user registered: {username}.", "fas fa-user-plus")
             session.clear()
-            session.update({"user_id": uid, "role": "user",
-                            "name": name, "user_logged_in": True})
-            flash("Account created!", "success")
+            session.update({
+                "user_id":        uid,
+                "role":           "user",
+                "name":           name,
+                "username":       username,
+                "user_logged_in": True,
+            })
+            flash(f"Account created! Welcome aboard, {name}! 🎉", "success")
             return redirect(url_for("dashboard"))
+
     return render_template("signup.html", error=error)
 
 
@@ -788,8 +859,25 @@ def request_property():
 @app.route("/admin")
 @admin_required
 def admin_dashboard():
-    total_users = query_db("SELECT COUNT(*) as c FROM users WHERE role='user'",
-                           one=True)["c"]
+    total_users = query_db(
+        "SELECT COUNT(*) as c FROM users WHERE role='user'", one=True
+    )["c"]
+
+    # ── New registrations in last 7 days ─────────────────────────────────────
+    new_users_week = query_db(
+        "SELECT COUNT(*) as c FROM users WHERE role='user' "
+        "AND created_at >= DATE('now','-7 days')", one=True
+    )["c"]
+
+    # ── Total confirmed bookings ──────────────────────────────────────────────
+    total_bookings = query_db(
+        "SELECT COUNT(*) as c FROM bookings WHERE status='confirmed'", one=True
+    )["c"]
+
+    # ── Total approved properties ─────────────────────────────────────────────
+    total_properties = query_db(
+        "SELECT COUNT(*) as c FROM properties WHERE status='approved'", one=True
+    )["c"]
 
     pending_raw = rows_to_dicts(query_db("""
         SELECT p.*, u.name AS user_name, u.email AS user_email
@@ -843,13 +931,12 @@ def admin_dashboard():
         enrich_dt(notifs, ["created_at"])
         unread = get_unread_count(ar["id"])
 
-    # Chart data: requests grouped by date (last 30 days)
+    # Chart data: new user registrations per day (last 14 days)
     chart_raw = query_db("""
         SELECT DATE(created_at) as day, COUNT(*) as cnt
-        FROM requests
-        WHERE created_at >= DATE('now', '-30 days')
-        GROUP BY day
-        ORDER BY day ASC
+        FROM users
+        WHERE role='user' AND created_at >= DATE('now', '-14 days')
+        GROUP BY day ORDER BY day ASC
     """)
     chart_labels = [r["day"] for r in chart_raw]
     chart_values = [r["cnt"] for r in chart_raw]
@@ -857,6 +944,9 @@ def admin_dashboard():
     return render_template(
         "admindashboard.html",
         total_users=total_users,
+        new_users_week=new_users_week,
+        total_bookings=total_bookings,
+        total_properties=total_properties,
         pending_properties=pending_raw,
         all_properties=all_properties,
         recent_users=recent_users,

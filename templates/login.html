@@ -3,177 +3,505 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login – Travyo</title>
+    <title>Sign In – Travyo</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+
         :root {
-            --primary: #1F3C88;
-            --secondary: #ff6b35;
-            --light: #f5f7fb;
+            --p: #1F3C88; --pd: #162B5E;
+            --a: #ff6b35; --ad: #e55a2b;
+            --g: #22c55e; --bg: #f0f4ff;
+            --text: #1a1a2e; --muted: #6b7280;
+            --border: #e2e8f0; --white: #fff;
+            --r: 10px; --t: all .25s cubic-bezier(.4,0,.2,1);
         }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--light);
+            font-family: 'Inter', 'Segoe UI', sans-serif;
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            color: var(--text);
         }
-        .auth-wrapper {
-            width: 100%;
-            max-width: 440px;
-            padding: 20px;
+
+        /* ── HERO PANEL ──────────────────────────────────────────────── */
+        .hero-side {
+            background: linear-gradient(145deg, var(--p) 0%, #0a1530 100%);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            padding: 60px 48px; position: relative; overflow: hidden;
         }
-        .brand {
-            text-align: center;
-            margin-bottom: 28px;
+        .hero-side::before {
+            content: ''; position: absolute; width: 500px; height: 500px; border-radius: 50%;
+            background: rgba(255,107,53,.12); top: -200px; right: -160px; pointer-events: none;
         }
-        .brand a {
-            font-size: 32px;
-            font-weight: 800;
-            color: var(--primary);
-            text-decoration: none;
-            letter-spacing: -1px;
+        .hero-side::after {
+            content: ''; position: absolute; width: 340px; height: 340px; border-radius: 50%;
+            background: rgba(255,255,255,.04); bottom: -100px; left: -80px; pointer-events: none;
         }
-        .brand a span { color: var(--secondary); }
-        .card {
-            background: #fff;
-            border-radius: 14px;
-            box-shadow: 0 4px 30px rgba(0,0,0,0.08);
-            padding: 36px 40px;
+        .hero-inner { position: relative; z-index: 1; max-width: 360px; }
+        .hero-logo {
+            font-size: 36px; font-weight: 900; color: #fff; text-decoration: none;
+            margin-bottom: 44px; display: block; letter-spacing: -1.5px;
         }
-        .card h2 {
-            font-size: 24px;
-            color: #222;
-            margin-bottom: 6px;
-            font-weight: 700;
+        .hero-logo span { color: var(--a); }
+        .hero-side h1 {
+            font-size: 36px; font-weight: 900; color: #fff; line-height: 1.15; margin-bottom: 16px;
         }
-        .card .subtitle {
-            color: #888;
-            font-size: 14px;
-            margin-bottom: 28px;
+        .hero-side > .hero-inner > p {
+            color: rgba(255,255,255,.7); font-size: 15px; margin-bottom: 40px; line-height: 1.75;
         }
+        .feature-list { display: flex; flex-direction: column; gap: 14px; }
+        .feat {
+            display: flex; align-items: center; gap: 14px;
+            background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1);
+            border-radius: 14px; padding: 14px 18px; transition: var(--t);
+        }
+        .feat:hover { background: rgba(255,255,255,.12); }
+        .feat-icon {
+            width: 38px; height: 38px; border-radius: 10px;
+            background: rgba(255,107,53,.22); display: flex; align-items: center;
+            justify-content: center; color: var(--a); font-size: 16px; flex-shrink: 0;
+        }
+        .feat span { color: rgba(255,255,255,.88); font-size: 14px; font-weight: 500; }
+
+        /* ── FORM PANEL ──────────────────────────────────────────────── */
+        .form-side {
+            display: flex; flex-direction: column; justify-content: center;
+            align-items: center; padding: 60px 48px; background: var(--white);
+        }
+        .form-box { width: 100%; max-width: 400px; }
+
+        .mobile-brand {
+            display: none; text-align: center; margin-bottom: 32px;
+        }
+        .mobile-brand a {
+            font-size: 30px; font-weight: 900; color: var(--p);
+            text-decoration: none; letter-spacing: -1px;
+        }
+        .mobile-brand a span { color: var(--a); }
+
+        .form-head { margin-bottom: 28px; }
+        .form-head h2 { font-size: 28px; font-weight: 800; margin-bottom: 6px; }
+        .form-head p  { color: var(--muted); font-size: 14px; }
+
+        /* Alerts */
         .alert {
-            padding: 12px 16px;
-            border-radius: 8px;
-            font-size: 14px;
-            margin-bottom: 20px;
+            padding: 12px 16px; border-radius: var(--r); font-size: 14px;
+            margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
+            animation: alertIn .3s ease;
         }
-        .alert-danger  { background: #fdf0f0; color: #c0392b; border: 1px solid #f5c6cb; }
-        .alert-success { background: #eafaf1; color: #1e8449; border: 1px solid #c3e6cb; }
-        .alert-info    { background: #eaf4fd; color: #1a6fa8; border: 1px solid #bee5eb; }
-        .alert-warning { background: #fffbea; color: #9a6b00; border: 1px solid #ffeeba; }
-        .form-group {
-            margin-bottom: 18px;
+        @keyframes alertIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:none; } }
+        .alert-danger  { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+        .alert-success { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+        .alert-warning { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+        .alert-info    { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+
+        /* Tab switcher (Login / Register) */
+        .tab-switch {
+            display: flex; background: var(--bg); border-radius: var(--r);
+            padding: 4px; gap: 4px; margin-bottom: 28px;
         }
-        .form-group label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            color: #444;
-            margin-bottom: 7px;
+        .tab-btn {
+            flex: 1; padding: 10px; border: none; border-radius: 8px;
+            font-size: 14px; font-weight: 600; cursor: pointer;
+            font-family: inherit; transition: var(--t);
+            background: transparent; color: var(--muted);
         }
-        .input-icon {
-            position: relative;
+        .tab-btn.active {
+            background: var(--white); color: var(--p);
+            box-shadow: 0 2px 8px rgba(31,60,136,.1);
         }
-        .input-icon i {
-            position: absolute;
-            left: 13px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #bbb;
-            font-size: 15px;
+
+        /* Form elements */
+        .fg { margin-bottom: 18px; }
+        .fg label {
+            display: block; font-size: 13px; font-weight: 600;
+            margin-bottom: 8px; color: var(--text); letter-spacing: .2px;
         }
-        .input-icon input {
-            width: 100%;
-            padding: 11px 14px 11px 38px;
-            border: 2px solid #e8e8e8;
-            border-radius: 8px;
-            font-size: 15px;
-            transition: border-color 0.2s;
-            outline: none;
+        .input-wrap { position: relative; }
+        .input-wrap .ico {
+            position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+            color: #c4c9d8; font-size: 14px; pointer-events: none; transition: color .2s;
         }
-        .input-icon input:focus { border-color: var(--primary); }
+        .input-wrap input {
+            width: 100%; padding: 13px 42px 13px 44px;
+            border: 2px solid var(--border); border-radius: var(--r);
+            font-size: 15px; font-family: inherit; color: var(--text);
+            background: #fafbff; outline: none; transition: var(--t);
+        }
+        .input-wrap input::placeholder { color: #b0b8cc; }
+        .input-wrap input:focus {
+            border-color: var(--p); background: #fff;
+            box-shadow: 0 0 0 4px rgba(31,60,136,.08);
+        }
+        .input-wrap input:focus + .ico { color: var(--p); }
+        .input-wrap input.error { border-color: #dc2626; }
+
+        /* Password toggle */
+        .pw-toggle {
+            position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+            background: none; border: none; color: var(--muted); cursor: pointer;
+            font-size: 15px; padding: 4px; transition: color .2s;
+        }
+        .pw-toggle:hover { color: var(--p); }
+
+        /* Field hint */
+        .field-hint { font-size: 12px; color: var(--muted); margin-top: 5px; display: flex; align-items: center; gap: 4px; }
+
+        /* Submit buttons */
         .btn-primary {
-            width: 100%;
-            padding: 13px;
-            background: var(--primary);
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
+            width: 100%; padding: 14px; background: var(--p); color: #fff;
+            border: none; border-radius: var(--r); font-size: 15px; font-weight: 700;
+            font-family: inherit; cursor: pointer; transition: var(--t);
+            display: flex; align-items: center; justify-content: center; gap: 9px;
             margin-top: 6px;
         }
-        .btn-primary:hover { background: #162B5E; transform: translateY(-1px); }
-        .auth-footer {
-            text-align: center;
-            margin-top: 22px;
-            font-size: 14px;
-            color: #888;
+        .btn-primary:hover { background: var(--pd); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(31,60,136,.28); }
+        .btn-primary:active { transform: none; }
+        .btn-primary:disabled { opacity: .65; cursor: not-allowed; transform: none !important; }
+        .btn-accent {
+            width: 100%; padding: 14px; background: var(--a); color: #fff;
+            border: none; border-radius: var(--r); font-size: 15px; font-weight: 700;
+            font-family: inherit; cursor: pointer; transition: var(--t);
+            display: flex; align-items: center; justify-content: center; gap: 9px;
+            margin-top: 6px;
         }
-        .auth-footer a { color: var(--primary); font-weight: 600; text-decoration: none; }
-        .divider {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #ccc;
-            font-size: 13px;
-            margin: 20px 0;
+        .btn-accent:hover { background: var(--ad); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(255,107,53,.28); }
+        .btn-accent:active { transform: none; }
+        .btn-accent:disabled { opacity: .65; cursor: not-allowed; transform: none !important; }
+
+        /* Footer note */
+        .form-note { text-align: center; margin-top: 20px; font-size: 13px; color: var(--muted); }
+        .form-note a { color: var(--p); font-weight: 600; text-decoration: none; }
+        .form-note a:hover { text-decoration: underline; }
+
+        /* New user CTA */
+        .new-user-cta {
+            display: flex; align-items: center; gap: 8px; margin-top: 20px; padding: 13px 16px;
+            background: linear-gradient(135deg, #f0f4ff, #e8f0ff);
+            border: 1px solid #d0dcff; border-radius: var(--r);
+            font-size: 13px; color: #3a4a7a;
         }
-        .divider::before, .divider::after {
-            content: ''; flex: 1; height: 1px; background: #e8e8e8;
+        .new-user-cta i { color: var(--a); font-size: 15px; flex-shrink: 0; }
+        .new-user-cta a { color: var(--p); font-weight: 700; text-decoration: none; }
+        .new-user-cta a:hover { text-decoration: underline; }
+
+        /* Divider */
+        .divider { display: flex; align-items: center; gap: 10px; margin: 20px 0; }
+        .divider hr { flex: 1; border: none; border-top: 1px solid var(--border); }
+        .divider span { font-size: 12px; color: var(--muted); white-space: nowrap; }
+
+        /* ── RESPONSIVE ─────────────────────────────────────────────── */
+        @media (max-width: 768px) {
+            body { grid-template-columns: 1fr; }
+            .hero-side { display: none; }
+            .form-side {
+                padding: 40px 24px; min-height: 100vh; background: var(--bg);
+                justify-content: flex-start; padding-top: 48px;
+            }
+            .form-box {
+                background: var(--white); border-radius: 18px; padding: 30px 24px;
+                box-shadow: 0 4px 30px rgba(31,60,136,.1); width: 100%;
+            }
+            .mobile-brand { display: block; }
         }
-        .terms { font-size: 12px; color: #aaa; text-align: center; margin-top: 14px; }
+        @media (max-width: 480px) {
+            .form-side { padding: 24px 16px; padding-top: 36px; }
+            .form-box { padding: 26px 20px; }
+        }
     </style>
 </head>
 <body>
-<div class="auth-wrapper">
-    <div class="brand">
-        <a href="{{ url_for('index') }}">Trav<span>yo</span></a>
-    </div>
 
-    <div class="card">
-        <h2>Welcome back</h2>
-        <p class="subtitle">Sign in to your Travyo account</p>
-
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% for cat, msg in messages %}
-            <div class="alert alert-{{ cat }}">{{ msg }}</div>
-            {% endfor %}
-        {% endwith %}
-
-        {% if error %}
-        <div class="alert alert-danger">{{ error }}</div>
-        {% endif %}
-
-        <form method="POST" action="{{ url_for('user_login') }}">
-            <div class="form-group">
-                <label for="email">Email Address</label>
-                <div class="input-icon">
-                    <i class="fas fa-envelope"></i>
-                    <input type="email" id="email" name="email" placeholder="you@example.com" required>
-                </div>
+<!-- ── HERO SIDE ──────────────────────────────────────────────────── -->
+<div class="hero-side">
+    <div class="hero-inner">
+        <a href="{{ url_for('index') }}" class="hero-logo">Trav<span>yo</span></a>
+        <h1>Your dream stay is one click away 🌟</h1>
+        <p>Join thousands of happy travelers who plan smarter, spend less, and experience more — all in one place.</p>
+        <div class="feature-list">
+            <div class="feat">
+                <div class="feat-icon"><i class="fas fa-map-marked-alt"></i></div>
+                <span>Explore <strong style="color:#fff">500+</strong> handpicked destinations worldwide</span>
             </div>
-            <div class="form-group">
-                <label for="password">Password</label>
-                <div class="input-icon">
-                    <i class="fas fa-lock"></i>
-                    <input type="password" id="password" name="password" placeholder="••••••••" required>
-                </div>
+            <div class="feat">
+                <div class="feat-icon"><i class="fas fa-bolt"></i></div>
+                <span>Instant booking with secure payment &amp; PDF receipt</span>
             </div>
-            <button type="submit" class="btn-primary">
-                <i class="fas fa-sign-in-alt"></i> Sign In
-            </button>
-        </form>
-
-        <div class="auth-footer">
-            Don't have an account? <a href="{{ url_for('user_register') }}">Sign Up</a>
+            <div class="feat">
+                <div class="feat-icon"><i class="fas fa-heart"></i></div>
+                <span>Trusted by <strong style="color:#fff">50,000+</strong> travelers every month</span>
+            </div>
         </div>
     </div>
 </div>
+
+<!-- ── FORM SIDE ──────────────────────────────────────────────────── -->
+<div class="form-side">
+    <div class="form-box">
+
+        <!-- Mobile logo -->
+        <div class="mobile-brand"><a href="{{ url_for('index') }}">Trav<span>yo</span></a></div>
+
+        <!-- Tab switcher -->
+        <div class="tab-switch" role="tablist">
+            <button class="tab-btn active" id="tab-login" role="tab"
+                    onclick="showTab('login')" type="button">
+                <i class="fas fa-sign-in-alt"></i> Sign In
+            </button>
+            <button class="tab-btn" id="tab-register" role="tab"
+                    onclick="showTab('register')" type="button">
+                <i class="fas fa-user-plus"></i> Register
+            </button>
+        </div>
+
+        <!-- ── LOGIN FORM ───────────────────────────────────────── -->
+        <div id="panel-login">
+            <div class="form-head">
+                <h2>Welcome back 👋</h2>
+                <p>Sign in to continue your travel journey</p>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% for cat, msg in messages %}
+                <div class="alert alert-{{ cat }}"><i class="fas fa-circle-info"></i> {{ msg }}</div>
+                {% endfor %}
+            {% endwith %}
+            {% if error %}
+            <div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
+            {% endif %}
+
+            <form method="POST" action="{{ url_for('user_login') }}" id="login-form" novalidate>
+                <div class="fg">
+                    <label for="identifier">Username or Email</label>
+                    <div class="input-wrap">
+                        <input type="text" id="identifier" name="identifier"
+                               placeholder="Enter your username or email"
+                               required autocomplete="username"
+                               value="{{ request.form.get('identifier', '') }}">
+                        <i class="fas fa-user ico"></i>
+                    </div>
+                </div>
+                <div class="fg">
+                    <label for="password">Password</label>
+                    <div class="input-wrap">
+                        <input type="password" id="login-pwd" name="password"
+                               placeholder="Enter your password" required autocomplete="current-password">
+                        <i class="fas fa-lock ico"></i>
+                        <button type="button" class="pw-toggle"
+                                onclick="togglePwd('login-pwd', this)" aria-label="Toggle password">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary" id="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Sign In
+                </button>
+            </form>
+
+            <div class="new-user-cta">
+                <i class="fas fa-compass"></i>
+                <span>New to Travyo? <a href="#" onclick="showTab('register'); return false;">Create a free account</a> and start exploring!</span>
+            </div>
+        </div>
+
+        <!-- ── REGISTER FORM (inline panel) ────────────────────────── -->
+        <div id="panel-register" style="display:none">
+            <div class="form-head">
+                <h2>Join Travyo free 🚀</h2>
+                <p>Create your account and discover amazing stays</p>
+            </div>
+
+            <form method="POST" action="{{ url_for('user_register') }}" id="reg-form" novalidate>
+                <div class="fg">
+                    <label for="reg-username">Username</label>
+                    <div class="input-wrap">
+                        <input type="text" id="reg-username" name="username"
+                               placeholder="e.g. john_doe" required
+                               autocomplete="username" minlength="3"
+                               oninput="validateUsername(this)">
+                        <i class="fas fa-at ico"></i>
+                    </div>
+                    <p class="field-hint" id="uname-hint"><i class="fas fa-info-circle"></i> 3+ characters, letters &amp; numbers only</p>
+                </div>
+                <div class="fg">
+                    <label for="reg-name">Full Name</label>
+                    <div class="input-wrap">
+                        <input type="text" id="reg-name" name="name"
+                               placeholder="Your full name" required autocomplete="name">
+                        <i class="fas fa-user ico"></i>
+                    </div>
+                </div>
+                <div class="fg">
+                    <label for="reg-email">Email Address</label>
+                    <div class="input-wrap">
+                        <input type="email" id="reg-email" name="email"
+                               placeholder="you@example.com" required autocomplete="email">
+                        <i class="fas fa-envelope ico"></i>
+                    </div>
+                </div>
+                <div class="fg">
+                    <label for="reg-pwd">Password</label>
+                    <div class="input-wrap">
+                        <input type="password" id="reg-pwd" name="password"
+                               placeholder="Min. 6 characters" required minlength="6"
+                               oninput="checkStrength(this.value)">
+                        <i class="fas fa-lock ico"></i>
+                        <button type="button" class="pw-toggle"
+                                onclick="togglePwd('reg-pwd', this)" aria-label="Toggle">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <!-- Password strength bar -->
+                    <div style="margin-top:8px">
+                        <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden">
+                            <div id="str-bar" style="height:100%;width:0;border-radius:2px;transition:width .4s,background .4s"></div>
+                        </div>
+                        <p id="str-label" style="font-size:12px;margin-top:4px;color:var(--muted)"></p>
+                    </div>
+                </div>
+                <div class="fg">
+                    <label for="reg-pwd2">Confirm Password</label>
+                    <div class="input-wrap">
+                        <input type="password" id="reg-pwd2" name="confirm_password"
+                               placeholder="Re-enter your password" required minlength="6"
+                               oninput="checkMatch()">
+                        <i class="fas fa-lock ico"></i>
+                        <button type="button" class="pw-toggle"
+                                onclick="togglePwd('reg-pwd2', this)" aria-label="Toggle">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <p id="match-hint" style="font-size:12px;margin-top:5px;display:none"></p>
+                </div>
+                <button type="submit" class="btn-accent" id="reg-btn">
+                    <i class="fas fa-user-plus"></i> Create Account
+                </button>
+            </form>
+            <p class="form-note" style="margin-top:16px">
+                By registering you agree to our <a href="#">Terms</a> &amp; <a href="#">Privacy Policy</a>.
+            </p>
+        </div>
+
+    </div><!-- /form-box -->
+</div><!-- /form-side -->
+
+<script>
+// ── Tab switching ─────────────────────────────────────────────────────────
+function showTab(tab) {
+    const loginP = document.getElementById('panel-login');
+    const regP   = document.getElementById('panel-register');
+    const tLogin = document.getElementById('tab-login');
+    const tReg   = document.getElementById('tab-register');
+
+    if (tab === 'login') {
+        loginP.style.display = 'block';
+        regP.style.display   = 'none';
+        tLogin.classList.add('active');
+        tReg.classList.remove('active');
+    } else {
+        loginP.style.display = 'none';
+        regP.style.display   = 'block';
+        tLogin.classList.remove('active');
+        tReg.classList.add('active');
+    }
+}
+
+// Auto-switch to register tab if there's a registration error
+{% if request.method == 'POST' and request.endpoint == 'user_register' and error %}
+document.addEventListener('DOMContentLoaded', () => showTab('register'));
+{% endif %}
+
+// ── Toggle password visibility ────────────────────────────────────────────
+function togglePwd(id, btn) {
+    const input = document.getElementById(id);
+    const icon  = btn.querySelector('i');
+    input.type  = input.type === 'password' ? 'text' : 'password';
+    icon.className = input.type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+}
+
+// ── Password strength meter ───────────────────────────────────────────────
+function checkStrength(v) {
+    const bar   = document.getElementById('str-bar');
+    const label = document.getElementById('str-label');
+    let score = 0;
+    if (v.length >= 6)  score++;
+    if (v.length >= 10) score++;
+    if (/[A-Z]/.test(v)) score++;
+    if (/[0-9]/.test(v)) score++;
+    if (/[^A-Za-z0-9]/.test(v)) score++;
+    const levels = [
+        { w: '0%',   c: 'transparent', t: '' },
+        { w: '25%',  c: '#ef4444',     t: 'Weak' },
+        { w: '50%',  c: '#f59e0b',     t: 'Fair' },
+        { w: '75%',  c: '#3b82f6',     t: 'Good' },
+        { w: '100%', c: '#22c55e',     t: 'Strong' },
+    ];
+    const l = levels[Math.min(score, 4)];
+    bar.style.width      = l.w;
+    bar.style.background = l.c;
+    label.textContent    = l.t;
+    label.style.color    = l.c;
+    checkMatch();
+}
+
+// ── Password match indicator ──────────────────────────────────────────────
+function checkMatch() {
+    const p1   = document.getElementById('reg-pwd').value;
+    const p2   = document.getElementById('reg-pwd2').value;
+    const hint = document.getElementById('match-hint');
+    if (!p2) { hint.style.display = 'none'; return; }
+    hint.style.display = 'flex';
+    hint.style.alignItems = 'center';
+    hint.style.gap = '5px';
+    if (p1 === p2) {
+        hint.innerHTML = '<i class="fas fa-check-circle" style="color:#22c55e"></i>';
+        hint.innerHTML += '<span style="color:#16a34a;font-weight:600">Passwords match ✓</span>';
+    } else {
+        hint.innerHTML = '<i class="fas fa-times-circle" style="color:#dc2626"></i>';
+        hint.innerHTML += '<span style="color:#dc2626;font-weight:600">Passwords do not match</span>';
+    }
+}
+
+// ── Username live validation ──────────────────────────────────────────────
+function validateUsername(input) {
+    const v     = input.value;
+    const hint  = document.getElementById('uname-hint');
+    const valid = /^[a-zA-Z0-9_-]{3,}$/.test(v);
+    input.style.borderColor = v.length === 0 ? '' : (valid ? '#22c55e' : '#ef4444');
+    hint.style.color = v.length === 0 ? 'var(--muted)' : (valid ? '#16a34a' : '#dc2626');
+}
+
+// ── Loading states ────────────────────────────────────────────────────────
+document.getElementById('login-form').addEventListener('submit', function(e) {
+    const btn = document.getElementById('login-btn');
+    const id  = document.getElementById('identifier').value.trim();
+    const pwd = document.getElementById('login-pwd').value;
+    if (!id || !pwd) { e.preventDefault(); return; }
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in…';
+});
+
+document.getElementById('reg-form').addEventListener('submit', function(e) {
+    const p1 = document.getElementById('reg-pwd').value;
+    const p2 = document.getElementById('reg-pwd2').value;
+    if (p1 !== p2) {
+        e.preventDefault();
+        checkMatch();
+        return;
+    }
+    const btn = document.getElementById('reg-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account…';
+});
+
+// ── Keyboard shortcut: Enter in username field focuses password ───────────
+document.getElementById('identifier')?.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') document.getElementById('login-pwd')?.focus();
+});
+</script>
 </body>
 </html>

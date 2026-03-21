@@ -5,83 +5,148 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login – Travyo</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-        :root{--primary:#1F3C88;--accent:#ff6b35}
-        body{font-family:'Segoe UI',Tahoma,sans-serif;background:linear-gradient(135deg,#0f1b3d 0%,#1F3C88 50%,#162B5E 100%);min-height:100vh;display:flex;align-items:center;justify-content:center}
-        .wrapper{width:100%;max-width:420px;padding:20px}
-        .shield{width:72px;height:72px;background:rgba(255,255,255,.12);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;border:2px solid rgba(255,255,255,.25)}
-        .shield i{font-size:32px;color:#fff}
-        .brand{text-align:center;margin-bottom:28px}
-        .brand h1{font-size:26px;font-weight:800;color:#fff;letter-spacing:-0.5px}
-        .brand p{color:rgba(255,255,255,.6);font-size:13px;margin-top:4px}
-        .card{background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);padding:36px 40px}
-        .card-title{font-size:20px;font-weight:700;color:#1a1a1a;margin-bottom:4px}
-        .card-sub{font-size:13px;color:#999;margin-bottom:24px}
-        .alert{padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:18px;background:#fdf0f0;color:#c0392b;border:1px solid #f5c6cb;display:flex;align-items:center;gap:8px}
-        .form-group{margin-bottom:18px}
-        .form-group label{display:block;font-size:12px;font-weight:700;color:#555;margin-bottom:7px;text-transform:uppercase;letter-spacing:.5px}
-        .input-wrap{position:relative}
-        .input-wrap i{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:#bbb;font-size:14px}
-        .input-wrap input{width:100%;padding:11px 14px 11px 38px;border:2px solid #e8e8e8;border-radius:8px;font-size:14px;outline:none;transition:border-color .2s;background:#fafafa}
-        .input-wrap input:focus{border-color:var(--primary);background:#fff}
-        .btn{width:100%;padding:13px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;transition:background .2s,transform .1s;margin-top:4px;display:flex;align-items:center;justify-content:center;gap:8px}
-        .btn:hover{background:#162B5E;transform:translateY(-1px)}
-        .back{display:block;text-align:center;margin-top:20px;color:rgba(255,255,255,.7);font-size:13px;text-decoration:none;transition:color .2s}
-        .back:hover{color:#fff}
-        .security-note{display:flex;align-items:center;gap:8px;margin-top:20px;padding:12px 14px;background:#f0f4ff;border-radius:8px;font-size:12px;color:#666;border:1px solid #dce8ff}
-        .security-note i{color:var(--primary);font-size:14px;flex-shrink:0}
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root { --p:#1F3C88; --pd:#162B5E; --a:#ff6b35; --r:10px; --t:all .25s ease; }
+        body {
+            font-family:'Inter','Segoe UI',sans-serif;
+            background:linear-gradient(135deg,#0a1230 0%,var(--p) 55%,#0f1f5c 100%);
+            min-height:100vh; display:flex; align-items:center; justify-content:center;
+            padding:24px; position:relative; overflow:hidden;
+        }
+        /* Animated background blobs */
+        body::before {
+            content:''; position:fixed; width:600px; height:600px; border-radius:50%;
+            background:radial-gradient(circle,rgba(255,107,53,.12) 0%,transparent 70%);
+            top:-200px; right:-200px; animation:drift 8s ease-in-out infinite alternate;
+        }
+        body::after {
+            content:''; position:fixed; width:400px; height:400px; border-radius:50%;
+            background:radial-gradient(circle,rgba(31,60,136,.2) 0%,transparent 70%);
+            bottom:-120px; left:-120px; animation:drift 10s ease-in-out infinite alternate-reverse;
+        }
+        @keyframes drift { from{transform:translate(0,0)} to{transform:translate(30px,20px)} }
+        .wrapper { position:relative; z-index:1; width:100%; max-width:440px; }
+        /* Shield icon */
+        .shield-wrap {
+            width:76px; height:76px; border-radius:50%;
+            background:rgba(255,255,255,.1); border:2px solid rgba(255,255,255,.2);
+            display:flex; align-items:center; justify-content:center;
+            margin:0 auto 22px; backdrop-filter:blur(10px);
+            box-shadow:0 0 0 8px rgba(255,255,255,.05);
+        }
+        .shield-wrap i { font-size:32px; color:#fff; }
+        .brand { text-align:center; margin-bottom:28px; }
+        .brand h1 { font-size:26px; font-weight:800; color:#fff; letter-spacing:-0.5px; margin-bottom:6px; }
+        .brand p  { color:rgba(255,255,255,.55); font-size:13px; }
+        /* Card */
+        .card {
+            background:#fff; border-radius:18px;
+            box-shadow:0 25px 80px rgba(0,0,0,.35); padding:38px 40px;
+            position:relative; overflow:hidden;
+        }
+        .card::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; background:linear-gradient(90deg,var(--p),var(--a)); }
+        .ct { font-size:20px; font-weight:700; color:#1a1a2e; margin-bottom:4px; }
+        .cs { font-size:13px; color:#6b7280; margin-bottom:24px; }
+        /* Alert */
+        .alert { padding:12px 16px; border-radius:var(--r); font-size:13px; margin-bottom:18px; display:flex; align-items:center; gap:10px; background:#fef2f2; color:#dc2626; border:1px solid #fecaca; animation:pop .3s ease; }
+        @keyframes pop { from{opacity:0;transform:scale(.97)} to{opacity:1;transform:scale(1)} }
+        /* Form */
+        .fg { margin-bottom:18px; }
+        .fg label { display:block; font-size:12px; font-weight:700; color:#374151; margin-bottom:8px; text-transform:uppercase; letter-spacing:.5px; }
+        .iw { position:relative; }
+        .iw .ico { position:absolute; left:14px; top:50%; transform:translateY(-50%); color:#c4c9d8; font-size:14px; pointer-events:none; }
+        .iw input {
+            width:100%; padding:13px 14px 13px 44px; border:2px solid #e2e8f0; border-radius:var(--r);
+            font-size:14px; font-family:inherit; color:#1a1a2e; background:#fafbff; outline:none; transition:var(--t);
+        }
+        .iw input::placeholder { color:#b0b8cc; }
+        .iw input:focus { border-color:var(--p); background:#fff; box-shadow:0 0 0 4px rgba(31,60,136,.08); }
+        .pt { position:absolute; right:14px; top:50%; transform:translateY(-50%); background:none; border:none; color:#9ca3af; cursor:pointer; font-size:14px; padding:4px; transition:color .2s; }
+        .pt:hover { color:var(--p); }
+        /* Button */
+        .btn {
+            width:100%; padding:14px; background:var(--p); color:#fff; border:none; border-radius:var(--r);
+            font-size:15px; font-weight:700; font-family:inherit; cursor:pointer; transition:var(--t);
+            display:flex; align-items:center; justify-content:center; gap:8px; margin-top:6px;
+        }
+        .btn:hover { background:var(--pd); transform:translateY(-1px); box-shadow:0 4px 14px rgba(31,60,136,.3); }
+        .btn:active { transform:none; }
+        .btn:disabled { opacity:.65; cursor:not-allowed; transform:none !important; }
+        /* Security note */
+        .sec-note { display:flex; align-items:flex-start; gap:10px; margin-top:20px; padding:14px; background:#f0f4ff; border-radius:var(--r); border:1px solid #dce8ff; font-size:12px; color:#4b5563; line-height:1.6; }
+        .sec-note i { color:var(--p); font-size:14px; flex-shrink:0; margin-top:1px; }
+        /* Back link */
+        .back { display:block; text-align:center; margin-top:24px; color:rgba(255,255,255,.65); font-size:13px; text-decoration:none; transition:color .2s; display:flex; align-items:center; justify-content:center; gap:6px; }
+        .back:hover { color:#fff; }
+        @media (max-width:480px) {
+            .card { padding:30px 24px; }
+            .wrapper { max-width:100%; }
+        }
     </style>
 </head>
 <body>
 <div class="wrapper">
-    <div class="shield"><i class="fas fa-shield-alt"></i></div>
+    <div class="shield-wrap"><i class="fas fa-shield-alt"></i></div>
     <div class="brand">
-        <h1>Travyo Admin</h1>
-        <p>Restricted access – authorised personnel only</p>
+        <h1>Travyo Admin Portal</h1>
+        <p>Restricted access — authorised personnel only</p>
     </div>
 
     <div class="card">
-        <p class="card-title">Admin Sign In</p>
-        <p class="card-sub">Enter your admin credentials to continue</p>
+        <p class="ct">Admin Sign In</p>
+        <p class="cs">Enter your credentials to access the control panel</p>
 
         {% if error %}
         <div class="alert"><i class="fas fa-exclamation-circle"></i> {{ error }}</div>
         {% endif %}
-
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% for cat, msg in messages %}
-            <div class="alert">{{ msg }}</div>
+            <div class="alert"><i class="fas fa-circle-info"></i> {{ msg }}</div>
             {% endfor %}
         {% endwith %}
 
-        <form method="POST" action="{{ url_for('admin_login') }}">
-            <div class="form-group">
+        <form method="POST" action="{{ url_for('admin_login') }}" id="af">
+            <div class="fg">
                 <label for="email">Admin Email</label>
-                <div class="input-wrap">
-                    <i class="fas fa-envelope"></i>
-                    <input type="email" id="email" name="email" placeholder="admin@domain.com" required autofocus>
+                <div class="iw">
+                    <input type="email" id="email" name="email" placeholder="admin@yourdomain.com" required autofocus autocomplete="username">
+                    <i class="fas fa-envelope ico"></i>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="fg">
                 <label for="password">Password</label>
-                <div class="input-wrap">
-                    <i class="fas fa-lock"></i>
-                    <input type="password" id="password" name="password" placeholder="••••••••" required>
+                <div class="iw">
+                    <input type="password" id="password" name="password" placeholder="••••••••••" required autocomplete="current-password">
+                    <i class="fas fa-lock ico"></i>
+                    <button type="button" class="pt" onclick="tp()" aria-label="Toggle"><i class="fas fa-eye" id="eye-icon"></i></button>
                 </div>
             </div>
-            <button type="submit" class="btn">
-                <i class="fas fa-sign-in-alt"></i> Sign In to Admin Panel
-            </button>
+            <button type="submit" class="btn" id="sb"><i class="fas fa-sign-in-alt"></i> Access Admin Panel</button>
         </form>
 
-        <div class="security-note">
+        <div class="sec-note">
             <i class="fas fa-info-circle"></i>
-            Credentials are managed via environment variables. Contact your system administrator if you are locked out.
+            Admin credentials are managed via environment variables (ADMIN_EMAIL &amp; ADMIN_PASSWORD). Contact your system administrator if locked out.
         </div>
     </div>
 
     <a href="{{ url_for('index') }}" class="back"><i class="fas fa-arrow-left"></i> Return to main site</a>
 </div>
+
+<script>
+function tp() {
+    const i = document.getElementById('password');
+    const ic = document.getElementById('eye-icon');
+    i.type = i.type === 'password' ? 'text' : 'password';
+    ic.className = i.type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+}
+document.getElementById('af').addEventListener('submit', function() {
+    const b = document.getElementById('sb');
+    b.disabled = true;
+    b.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating…';
+});
+</script>
 </body>
 </html>
