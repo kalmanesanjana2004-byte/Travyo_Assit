@@ -33,10 +33,20 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "travyo-super-secret-key-change-me")
 
 BASE_DIR      = os.path.dirname(os.path.abspath(__file__))
-DATABASE      = os.path.join(BASE_DIR, "travyo.db")
-UPLOAD_FOLDER = os.path.join(BASE_DIR, "static", "uploads")
+
+# ── Persistent storage paths ──────────────────────────────────────────────────
+# On Render, set DB_PATH=/var/data/travyo.db and UPLOAD_FOLDER=/var/data/uploads
+# after attaching a Persistent Disk mounted at /var/data.
+# Falls back to local paths so the app still works in dev without any changes.
+_DEFAULT_DB_PATH      = os.path.join(BASE_DIR, "travyo.db")
+_DEFAULT_UPLOAD_FOLDER = os.path.join(BASE_DIR, "static", "uploads")
+
+DATABASE      = os.environ.get("DB_PATH", _DEFAULT_DB_PATH)
+UPLOAD_FOLDER = os.environ.get("UPLOAD_FOLDER", _DEFAULT_UPLOAD_FOLDER)
 ALLOWED_EXT   = {"png", "jpg", "jpeg", "gif", "webp"}
 
+# Ensure the directory that contains the DB file exists (critical for /var/data)
+os.makedirs(os.path.dirname(os.path.abspath(DATABASE)), exist_ok=True)
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(os.path.join(BASE_DIR, "static", "images"), exist_ok=True)
 app.config["UPLOAD_FOLDER"]         = UPLOAD_FOLDER
@@ -1226,6 +1236,11 @@ def chatbot():
 # Startup
 # ─────────────────────────────────────────────────────────────────────────────
 with app.app_context():
+    # Printed to Render's log stream — confirms which DB path is active
+    import logging
+    logging.basicConfig(level=logging.INFO)
+    logging.info("[Travyo] Using database  : %s", DATABASE)
+    logging.info("[Travyo] Using uploads at: %s", UPLOAD_FOLDER)
     init_db()
 
 if __name__ == "__main__":

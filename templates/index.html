@@ -462,8 +462,87 @@
         <div id="request-message" style="display:none" class="modal-msg"></div>
     </div>
 </div>
+<div id="chatbot-wrapper">
+    <div id="chatbot-window">
+        <div id="chatbot-header">
+            <span>Travyo Assistant</span>
+            <button onclick="toggleChat()"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="chatbot-messages"></div>
+        <div id="chatbot-input">
+            <input type="text" id="chat-msg" placeholder="Ask about bookings..." onkeypress="handleKey(event)">
+            <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+    <button id="chatbot-toggle" onclick="toggleChat()">
+        <i class="fas fa-comment-dots"></i>
+    </button>
+</div>
+
+<style>
+    /* Chatbot Styles */
+    #chatbot-wrapper { position: fixed; bottom: 30px; right: 30px; z-index: 1000; font-family: 'Inter', sans-serif; }
+    #chatbot-toggle { 
+        width: 60px; height: 60px; background: var(--p); color: #fff; border-radius: 50%; 
+        border: none; cursor: pointer; font-size: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
+    }
+    #chatbot-window { 
+        display: none; width: 320px; height: 450px; background: #fff; border-radius: 12px; 
+        flex-direction: column; box-shadow: 0 8px 30px rgba(0,0,0,0.15); margin-bottom: 15px; overflow: hidden;
+    }
+    #chatbot-header { background: var(--p); color: #fff; padding: 15px; display: flex; justify-content: space-between; font-weight: 700; }
+    #chatbot-header button { background: none; border: none; color: #fff; cursor: pointer; }
+    #chatbot-messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; font-size: 14px; background: #f9f9f9; }
+    .chat-bubble { padding: 10px 14px; border-radius: 15px; max-width: 80%; line-height: 1.4; }
+    .chat-bubble.bot { background: #eee; align-self: flex-start; border-bottom-left-radius: 2px; }
+    .chat-bubble.user { background: var(--p); color: #fff; align-self: flex-end; border-bottom-right-radius: 2px; }
+    #chatbot-input { padding: 10px; border-top: 1px solid #eee; display: flex; gap: 5px; }
+    #chatbot-input input { flex: 1; border: 1px solid #ddd; padding: 8px; border-radius: 20px; outline: none; }
+    #chatbot-input button { background: var(--p); color: #fff; border: none; padding: 8px 12px; border-radius: 50%; cursor: pointer; }
+</style>
 
 <script>
+    function toggleChat() {
+        const win = document.getElementById('chatbot-window');
+        win.style.display = win.style.display === 'flex' ? 'none' : 'flex';
+        if(win.style.display === 'flex' && !document.querySelector('.chat-bubble')) {
+            addMessage("Hi! I'm your Travyo Assistant. How can I help you today? 😊", 'bot');
+        }
+    }
+
+    function handleKey(e) { if(e.key === 'Enter') sendMessage(); }
+
+    async function sendMessage() {
+        const input = document.getElementById('chat-msg');
+        const msg = input.value.trim();
+        if(!msg) return;
+
+        addMessage(msg, 'user');
+        input.value = '';
+
+        try {
+            const response = await fetch('/chatbot', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: msg })
+            });
+            const data = await response.json();
+            addMessage(data.reply, 'bot');
+        } catch (err) {
+            addMessage("Sorry, I'm having trouble connecting right now.", 'bot');
+        }
+    }
+
+    function addMessage(text, side) {
+        const container = document.getElementById('chatbot-messages');
+        const div = document.createElement('div');
+        div.className = `chat-bubble ${side}`;
+        div.innerHTML = text; // innerHTML to support the <br> tags from your backend
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
+    }
+
+
 // ── Slider ────────────────────────────────────────────────────────────────
 const slides   = document.querySelectorAll('.hero-slide');
 const dotsWrap = document.getElementById('hero-dots');
