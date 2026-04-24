@@ -25,7 +25,9 @@ from reportlab.platypus import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
+import os
 
+os.makedirs("static/uploads", exist_ok=True)
 # ─────────────────────────────────────────────────────────────────────────────
 # App configuration
 # ─────────────────────────────────────────────────────────────────────────────
