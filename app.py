@@ -1209,7 +1209,9 @@ CHATBOT_QA = [
         ),
     },
 ]
-
+@app.route('/ping')
+def ping():
+    return "OK", 200
 @app.route("/chatbot", methods=["POST"])
 def chatbot():
     """Keyword-based chatbot endpoint. Returns a JSON response."""
