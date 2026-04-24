@@ -206,7 +206,7 @@ def init_db():
     admin = db.execute("SELECT id FROM users WHERE role='admin'").fetchone()
     if not admin:
         db.execute(
-            "INSERT INTO users (username,name,email,password,role) VALUES (?,?,?,?,?)",
+            "INSERT OR IGNORE INTO users (username,name,email,password,role) VALUES (?,?,?,?,?)",
             (ADMIN_USERNAME, "Admin", ADMIN_EMAIL,
              generate_password_hash(ADMIN_PASSWORD), "admin"),
         )
