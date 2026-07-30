@@ -1,19 +1,27 @@
+databases:
+  - name: travyo-db
+    plan: free
+    databaseName: travyo
+    user: travyo_user
+
 services:
   - type: web
     name: travyo
     runtime: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app --workers 2 --bind 0.0.0.0:$PORT --timeout 120
+    startCommand: gunicorn wsgi:app --workers 2 --bind 0.0.0.0:$PORT --timeout 120
     envVars:
       - key: SECRET_KEY
         generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: travyo-db
+          property: connectionString
+      - key: ADMIN_USERNAME
+        value: admin
       - key: ADMIN_EMAIL
-        value: admin@travyo.com        # Change this in Render dashboard
+        value: admin@travyo.com        # Override in Render dashboard
       - key: ADMIN_PASSWORD
-        sync: false                    # Set securely in Render → Environment (never committed)
+        sync: false                    # Set securely in Render → Environment
       - key: PYTHON_VERSION
         value: 3.11.0
-    disk:
-      name: travyo-data
-      mountPath: /opt/render/project/src
-      sizeGB: 1

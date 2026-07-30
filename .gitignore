@@ -1,9 +1,26 @@
-travyo.db
+# SQLite databases (keep locally, never commit)
+*.db
+*.sqlite
+*.sqlite3
+
+# Environment variables — NEVER commit
+.env
+
+# Python cache
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
+
+# Uploads (runtime-generated)
 static/uploads/
-.env
+
+# Build artifacts
 *.egg-info/
 dist/
 build/
+
+# Virtual environment
+venv/
+.venv/
+env/
