@@ -21,7 +21,7 @@ import psycopg2.extras
 
 from flask import (
     Flask, render_template, request, redirect, url_for,
-    session, flash, jsonify, g, send_file,
+    session, flash, jsonify, g, send_file, make_response,
 )
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
@@ -343,7 +343,11 @@ def login_required(f):
         if "user_id" not in session:
             flash("Please log in to continue.", "warning")
             return redirect(url_for("user_login"))
-        return f(*args, **kwargs)
+        response = make_response(f(*args, **kwargs))
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        response.headers["Pragma"]        = "no-cache"
+        response.headers["Expires"]       = "0"
+        return response
     return decorated
 
 
@@ -353,7 +357,11 @@ def admin_required(f):
         if not session.get("is_admin"):
             flash("Admin access only.", "danger")
             return redirect(url_for("user_login"))
-        return f(*args, **kwargs)
+        response = make_response(f(*args, **kwargs))
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        response.headers["Pragma"]        = "no-cache"
+        response.headers["Expires"]       = "0"
+        return response
     return decorated
 
 
